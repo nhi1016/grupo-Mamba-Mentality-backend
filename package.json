@@ -9,7 +9,10 @@
   "license": "MIT",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "migrar_db": "node Modelos/createTables.js",
+    "desmigrar_db": "node Modelos/dropTables.js",
+    "seed_db": "node Modelos/insertarDatos"
   },
   "dependencies": {
     "dotenv": "^16.0.3",
