@@ -1,5 +1,5 @@
-import Router from "koa-router";
-import inicio from "./routes/inicio.js";
+import Router from 'koa-router';
+import inicio from './routes/inicio.js';
 
 const router = new Router();
 
