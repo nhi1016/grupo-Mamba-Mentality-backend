@@ -17,7 +17,9 @@ El cual instalará los siguientes paquetes:
 + `eslint`
 
 # Instrucciones para levantar la Base de Datos
-Con el comando ``-`` se crea la DB
+1. Con el comando ``yarn migrar_db`` se crea la DB necearia
+2. Con el comando ``yarn seed_db`` se incertan datos para testear la DB
+3. Con el comando ``desmigrar_db`` se borran las tablas de la DB
 
 # End-Point's
 + ``nombre`` - ``método http```- ``ruta`` - ``argumentos + formato`` - ``retorno + formato`` 
