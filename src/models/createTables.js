@@ -10,9 +10,25 @@ const client = new Client({
   database: process.env.DB_NAME,
 });
 
-const tabla1 = 'CREATE TABLE Usuario(id SERIAL PRIMARY KEY, nombre VARCHAR(30), email VARCHAR(30), password VARCHAR(90))';
-const tabla2 = 'CREATE TABLE Tablero(id SERIAL PRIMARY KEY,nombre VARCHAR(30) NOT NULL,id_usuario INT,turno INT DEFAULT 1,FOREIGN KEY(id_usuario) REFERENCES Usuario(id))';
-const tabla3 = 'CREATE TABLE Personaje(id SERIAL PRIMARY KEY,avatar VARCHAR(30),habilidad VARCHAR(30))';
+const tabla1 = `CREATE TABLE Usuario(
+                    id 			SERIAL PRIMARY KEY, 
+					nikname 	VARCHAR(30) UNIQUE NOT NULL,
+					password 	VARCHAR(90)
+				)`;
+const tabla2 = `CREATE TABLE Partida(
+					id 				SERIAL PRIMARY KEY,
+					score 			INT DEFAUL 0,
+					vidas			INT DEFAULT 3,
+					tiempo_restante	INT DEFAULT 60,
+				)`;
+const tabla3 = `CREATE TABLE Historial(
+					id SERIAL 	PRIMARY KEY,
+					id_usuario 	INT,
+					id_partida 	INT,
+					fecha DATETIME,
+					FOREIGN KEY(id_usuario) REFERENCES Usuario(id),
+					FOREIGN KEY(id_partida) REFERENCES Partida(id)
+				)`;
 const tabla4 = 'CREATE TABLE Ruta(id SERIAL PRIMARY KEY,nombre VARCHAR(30) UNIQUE NOT NULL)';
 const tabla5 = 'CREATE TABLE Casilla(id SERIAL PRIMARY KEY,nombre VARCHAR(30) UNIQUE NOT NULL)';
 const tabla6 = 'CREATE TABLE RutaCasillas(id SERIAL PRIMARY KEY,nombre_ruta VARCHAR(30) ,nombre_casilla VARCHAR(30) ,posicion INT)';
