@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 dbKnex({
-  client: 'pg',
+  client: 'postgresql',
   connection: {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,

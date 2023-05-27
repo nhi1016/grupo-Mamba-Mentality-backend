@@ -9,8 +9,8 @@ router.post('/operacion', async (ctx) => {
   ctx.body = argumentos;
 });
 
-router.get('hola', async (ctx) => {
-	const response = await knex('Usuario').select('*').where('id', '=', 1);
+router.get('', async (ctx) => {
+	const response = await knex('Usuario').select('*');
     ctx.body = JSON.stringify(response);
 });
 
