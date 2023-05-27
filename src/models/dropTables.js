@@ -19,7 +19,7 @@ const borrarTablas = () => {
     const nombreTabla = instruction.split(' ')[2];
     try {
       await knex.raw(instruction);
-   		console.log(`Tablas ${nombreTabla} borradas exitosamente`);
+      console.log(`Tablas ${nombreTabla} borradas exitosamente`);
     } catch (err) {
       // console.log(err.stack);
       console.log(`¡¡ Error al borrar Tabla: ${nombreTabla} !!`);
@@ -27,5 +27,4 @@ const borrarTablas = () => {
   });
 };
 
-// Abilitar esto para que funcione
 borrarTablas();

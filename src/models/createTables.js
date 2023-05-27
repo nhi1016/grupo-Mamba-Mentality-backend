@@ -2,7 +2,7 @@ require('dotenv').config();
 const knex = require('../controllers/knex');
 
 const tablas = [
-  'CREATE TABLE Usuario(id SERIAL PRIMARY KEY, nikname VARCHAR(30) UNIQUE NOT NULL, password VARCHAR(90));',
+  'CREATE TABLE Usuario(id SERIAL PRIMARY KEY, nickname VARCHAR(30) UNIQUE NOT NULL, password VARCHAR(90));',
   'CREATE TABLE Partida(id SERIAL PRIMARY KEY, score INT DEFAULT 0, vidas INT DEFAULT 3, tiempo_restante INT DEFAULT 60);',
   'CREATE TABLE Historial(id SERIAL PRIMARY KEY, id_usuario INT, id_partida INT, fecha TIMESTAMP, FOREIGN KEY(id_usuario) REFERENCES Usuario(id), FOREIGN KEY(id_partida) REFERENCES Partida(id));',
   'CREATE TABLE Tablero(id SERIAL PRIMARY KEY, tamano INT NOT NULL, dificultad VARCHAR(30) );',
@@ -19,7 +19,7 @@ const crearTablas = () => {
     const nombreTabla = instruction.split(' ')[2].slice(0, -3);
     try {
       await knex.raw(instruction);
-	  console.log(`Tabla: ${nombreTabla} creada exitosamente !!`);
+      console.log(`Tabla: ${nombreTabla} creada exitosamente !!`);
     } catch (err) {
     //   console.log(err.stack);
       console.log(`¡¡ Error al crear Tabla: ${nombreTabla} !!`);
@@ -27,5 +27,4 @@ const crearTablas = () => {
   });
 };
 
-// Abilitar esto para que funcione
 crearTablas();
