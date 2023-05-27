@@ -1,4 +1,5 @@
 import Router from 'koa-router';
+import knex from '../controllers/dbKnex.js';
 
 const router = new Router();
 
@@ -8,8 +9,9 @@ router.post('/operacion', async (ctx) => {
   ctx.body = argumentos;
 });
 
-router.get('/', async (ctx) => {
-  ctx.body = '<h1>Hola tu, bienvenido</h1>';
+router.get('hola', async (ctx) => {
+	const response = await knex('Usuario').select('*').where('id', '=', 1);
+    ctx.body = JSON.stringify(response);
 });
 
 export default router;
