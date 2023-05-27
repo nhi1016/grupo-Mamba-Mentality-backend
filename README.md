@@ -30,5 +30,18 @@ El cual instalará los siguientes paquetes:
 ## Consultas a la DDBB
 Para otorgar seguridad al proyecto de `SQL injections` se desidió utilizar `Knex.js` como query builder en vez de un ORM como `Sequelize`, ya que nos permite modelar la DDBB y las relaciones a nuestro gusto, además que el lenguaje de consulta es más intuitivo y parecido a ``SQL`` en consola
 
+# La Base de Datos
+Esta consiste en 5 entidades y 5 relaciones, las que se muestran como tablas a continuación:
+1. Usuario
+2. Partida
+3. Historial
+4. Tablero
+5. Tablero_Partida
+6. Imagen
+7. Tablero_Imagenes
+8. R_Im_Im
+9. Bonus
+10. Partida_Bonus
+
 # End-Point's
 + ``nombre`` - ``método http```- ``ruta`` - ``argumentos + formato`` - ``retorno + formato`` 
