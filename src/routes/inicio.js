@@ -1,5 +1,5 @@
-import Router from 'koa-router';
-import knex from '../controllers/dbKnex.js';
+const Router = require('koa-router');
+const knex = require('../controllers/knex');
 
 const router = new Router();
 
@@ -10,8 +10,8 @@ router.post('/operacion', async (ctx) => {
 });
 
 router.get('', async (ctx) => {
-	const response = await knex('Usuario').select('*');
-    ctx.body = JSON.stringify(response);
+  const res = await knex.raw('SELECT * FROM Usuario;');
+  ctx.body = res.rows;
 });
 
-export default router;
+module.exports = router;

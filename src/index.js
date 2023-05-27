@@ -1,9 +1,9 @@
-import Koa from 'koa';
-import KoaLogger from 'koa-logger';
-import { koaBody } from 'koa-body';
-import koaCors2 from 'koa-cors2';
-import router from './routes.js';
-import dotenv from 'dotenv';
+const Koa = require('koa');
+const KoaLogger = require('koa-logger');
+const { koaBody } = require('koa-body');
+const koaCors2 = require('koa-cors2');
+const router = require('./routes.js');
+const dotenv = require('dotenv');
 
 dotenv.config();
 

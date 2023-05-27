@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "lógica de memorimatrix",
   "main": "index.js",
-  "type": "module",
+  "type": "commonjs",
   "repository": "https://github.com/IIC2513/grupo-Mamba-Mentality-backend.git",
   "author": "Gerardo CF <gicastro@uc.cl>",
   "license": "MIT",
