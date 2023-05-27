@@ -6,6 +6,42 @@ const seeds = [
   `INSERT INTO Usuario(nickname, password) VALUES
   ('nikin', 4444),
   ('roki', 5543);`,
+  // Partida
+  `INSERT INTO Partida(score, vidas, tiempo_restante) VALUES 
+  (),
+  ();`,
+  // Historial
+  `INSERT INTO Historial() VALUES 
+  (),
+  ();`,
+  // Tablero
+  `INSERT INTO Tablero() VALUES 
+  (),
+  ();`,
+  // Tablero_Partida
+  `INSERT INTO Tablero_Partida() VALUES 
+  (),
+  ();`,
+  // Imagen
+  `INSERT INTO Imagen() VALUES 
+  (),
+  ();`,
+  // Tablero_Imagenes
+  `INSERT INTO Tablero_Imagenes() VALUES 
+  (),
+  ();`,
+  // R_Im_Im
+  `INSERT INTO R_Im_Im() VALUES 
+  (),
+  ();`,
+  // Bonus
+  `INSERT INTO Bonus() VALUES 
+  (),
+  ();`,
+  // Partida_Bonus
+  `INSERT INTO Partida_Bonus() VALUES 
+  (),
+  ();`,
 ];
 
 const crearSeed = () => {
