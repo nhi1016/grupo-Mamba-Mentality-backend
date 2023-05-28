@@ -3,10 +3,10 @@ const knex = require('../controllers/knex');
 
 const router = new Router();
 
-router.post('/operacion', async (ctx) => {
-  const argumentos = ctx.request.body;
-
-  ctx.body = argumentos;
+router.post('', async (ctx) => {
+  const reqBody = ctx.request.body;
+  console.log(reqBody);
+  ctx.body = '<h1>Recibido</h1>';
 });
 
 router.get('', async (ctx) => {
