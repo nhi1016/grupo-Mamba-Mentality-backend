@@ -19,12 +19,32 @@ El cual instalará los siguientes paquetes:
 + `Knex`
 + `pg`
 
+# Instrucciones para levantar el servidos
+1. Definir la variable de entorno `PORT` en el archivo `.env`, por ejemplot (`PORT=3000`)
+
 # Instrucciones para levantar la Base de Datos
 1. Es necesario crear las variables de entorno en el archivo `.env` en el directorio `/`
+2. Tener instalado `postgres`
 2. Se deben definir las variables `DB_HOST`, `DB_NAME`, `DB_PASSWORD`, `DB_USER` en el archivo `.env`
-3. Con el comando ``yarn migrar_db`` se crea la DB necearia
-4. Con el comando ``yarn seed_db`` se incertan datos para testear la DB
-5. Con el comando ``desmigrar_db`` se borran las tablas de la DB
+3. Crear la Base de Datos de:
+    + Nombre = ``DB_NAME``
+    + Usuario de postgres = ``DB_USER``
+    + Password de usuario = `DB_PASSWORD`
+    + `DB_HOST` = `localhost`
+    + Se puede seguir el siguiente orden
+    ```console
+    sudo service postgresql start
+    sudo -u postgres psql
+
+    %% Dentro de la consola de postgres
+
+    CREATE USER DB_USER WITH PASSWORD DB_PASSWORD;
+    ALTER USER DB_USER WITH SUPERUSER;
+    CREATE DATABASE DB_NAME WITH OWNER DB_USER;
+    ```
+4. Con el comando ``yarn migrar_db`` se crea la DB necearia
+5. Con el comando ``yarn seed_db`` se incertan datos para testear la DB
+6. Con el comando ``desmigrar_db`` se borran las tablas de la DB
 \* Notar que despues de migrar y desmigrar la conexión con la DB queda habierta durante unos 60 segundos aproximadamente. Para terminar esa espera con `ctrl-c` termina sin causar problemas.
 
 ## Consultas a la DDBB
@@ -47,3 +67,38 @@ Esta consiste en 5 entidades y 5 relaciones, las que se muestran como tablas a c
 
 # End-Point's
 + ``nombre`` - ``método http```- ``ruta`` - ``argumentos + formato`` - ``retorno + formato`` 
++ En la ventana inicio, cuando se apreta el boton jugar y no ha iniciado sesión se envía
+Game/FreeTrial
+{
+    nickname: 'Robertin123'
+}
+Y devuelve
+{
+    "nickname": "Robertin123",
+    "vidas": 4,
+    "tiempo_restante": 600,
+    "tamano_tablero": 4,
+    "tipo_bonus": "vista rápida",
+    "bonus_descripcion": "puedes ver las imagenes por 3 segundos"
+},
+{
+    "nickname": "Robertin123",
+    "vidas": 4,
+    "tiempo_restante": 600,
+    "tamano_tablero": 4,
+    "tipo_bonus": "transparencia",
+    "bonus_descripcion": "las imagenes se tornan transparentes por 4 segundos"
+},
+{
+    "nickname": "Robertin123",
+    "vidas": 4,
+    "tiempo_restante": 600,
+    "tamano_tablero": 4,
+    "tipo_bonus": "pista",
+    "bonus_descripcion": "una pista de las posiciones del tablero relacionadas"
+}
++ En la ventana inicio, cuando se apreta el boton jugar y si ha iniciado sesión se envía
+/Game/nickname
+{
+    nickname: 'nickname'
+}
