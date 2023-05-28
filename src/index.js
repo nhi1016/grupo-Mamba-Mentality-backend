@@ -2,7 +2,7 @@ const Koa = require('koa');
 const KoaLogger = require('koa-logger');
 const { koaBody } = require('koa-body');
 const koaCors2 = require('koa-cors2');
-const router = require('./routes.js');
+const router = require('./routes');
 const dotenv = require('dotenv');
 
 dotenv.config();
