@@ -68,34 +68,37 @@ Esta consiste en 5 entidades y 5 relaciones, las que se muestran como tablas a c
 # End-Point's
 + ``nombre`` - ``método http```- ``ruta`` - ``argumentos + formato`` - ``retorno + formato`` 
 + En la ventana inicio, cuando se apreta el boton jugar y no ha iniciado sesión se envía
-Game/FreeTrial
+`metodo http`: ``POST``
+`ruta`: Game/FreeTrial
+``argumentos y formato``:
 {
     nickname: 'Robertin123'
 }
-Y devuelve
+``retorno y formato``:
 {
-    "nickname": "Robertin123",
-    "vidas": 4,
-    "tiempo_restante": 600,
-    "tamano_tablero": 4,
-    "tipo_bonus": "vista rápida",
-    "bonus_descripcion": "puedes ver las imagenes por 3 segundos"
-},
-{
-    "nickname": "Robertin123",
-    "vidas": 4,
-    "tiempo_restante": 600,
-    "tamano_tablero": 4,
-    "tipo_bonus": "transparencia",
-    "bonus_descripcion": "las imagenes se tornan transparentes por 4 segundos"
-},
-{
-    "nickname": "Robertin123",
-    "vidas": 4,
-    "tiempo_restante": 600,
-    "tamano_tablero": 4,
-    "tipo_bonus": "pista",
-    "bonus_descripcion": "una pista de las posiciones del tablero relacionadas"
+	"usuario": {
+		"nickname": "Robertin123",
+		"vidas": 4
+	},
+	"tablero": {
+		"tiempo_restante": 600,
+		"tamano": 4,
+		"imagenes": [],
+		"bonus": [
+			{
+				"tipo": "vista rápida",
+				"descripsion": "puedes ver las imagenes por 3 segundos"
+			},
+			{
+				"tipo": "transparencia",
+				"descripsion": "las imagenes se tornan transparentes por 4 segundos"
+			},
+			{
+				"tipo": "pista",
+				"descripsion": "una pista de las posiciones del tablero relacionadas"
+			}
+		]
+	}
 }
 + En la ventana inicio, cuando se apreta el boton jugar y si ha iniciado sesión se envía
 /Game/nickname

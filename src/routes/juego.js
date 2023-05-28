@@ -15,6 +15,7 @@ router.post('/FreeTrial', async (ctx) => {
       vidas: undefined,
     },
     tablero: {
+      tiempo_restante: undefined,
       tamano: undefined,
       imagenes: [],
       bonus: [],
@@ -31,7 +32,24 @@ router.post('/FreeTrial', async (ctx) => {
     AND P.id = PB.id_partida
     AND PB.id_bonus = B.id;`,
   );
-  ctx.body = res.rows;
+  response.usuario.vidas = res.rows[0].vidas;
+  response.tablero.tiempo_restante = res.rows[0].tiempo_restante;
+  response.tablero.tamano = res.rows[0].tamano_tablero;
+  response.tablero.bonus = [
+    {
+      tipo: res.rows[0].tipo_bonus,
+      descripsion: res.rows[0].bonus_descripcion,
+    },
+    {
+      tipo: res.rows[1].tipo_bonus,
+      descripsion: res.rows[1].bonus_descripcion,
+    },
+    {
+      tipo: res.rows[2].tipo_bonus,
+      descripsion: res.rows[2].bonus_descripcion,
+    },
+  ]
+  ctx.body = response;
 });
 
 router.post('/:nickname', async (ctx) => {
