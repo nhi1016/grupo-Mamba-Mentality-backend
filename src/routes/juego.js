@@ -67,21 +67,15 @@ router.get('/FreeTrial', async (ctx) => {
       });
     });
   }
-  const cargarImagenes = new Promise((res, rej) => {
-    imagenes.rows.forEach(async (tupla) => {
-      const imgPath = path.join(tupla.ruta, tupla.nombre);
-      const img64 = await data64(imgPath);
-      listaImagenes.push({
-        id: tupla.id,
-        imagen: img64,
-      });
-      if (listaImagenes) {
-        res('ok');
-      } else {
-        rej();
-      }
+  await Promise.all(imagenes.rows.map(async (tupla) => {
+    const imgPath = path.resolve(__dirname, '..', 'models', 'images', tupla.nombre);
+    const img64 = await data64(imgPath);
+    listaImagenes.push({
+      id: tupla.id,
+      imagen: img64,
     });
-  });
+  }));
+  
   response.tablero.imagenes = listaImagenes;
 
   ctx.body = response;
