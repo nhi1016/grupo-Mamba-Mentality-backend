@@ -12,7 +12,8 @@
     "dev": "nodemon src/index.js",
     "migrar_db": "node src/models/createTables.js",
     "desmigrar_db": "node src/models/dropTables.js",
-    "seed_db": "node src/models/insertData"
+    "seed_db": "node src/models/insertData",
+    "migrar_all": "node src/models/dropTables ; node src/models/createTables ; node src/models/insertData"
   },
   "dependencies": {
     "bcrypt": "^5.1.0",

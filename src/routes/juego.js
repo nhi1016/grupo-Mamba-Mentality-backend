@@ -2,6 +2,7 @@ const Router = require('koa-router');
 const knex = require('../controllers/knex');
 const fs = require('fs');
 const path = require('node:path');
+const { request } = require('http');
 
 const router = new Router();
 
@@ -94,13 +95,16 @@ router.get('/:nickname', async (ctx) => {
   const response = {
     usuario: {
       nickname: reqBody.nickname,
+    },
+    partida: {
+      id: undefined,
       vidas: undefined,
-    },
-    tablero: {
-      tamano: undefined,
-      bonus: [],
-      imagenes: [],
-    },
+      tablero: {
+        tamano: undefined,
+        bonus: [],
+        imagenes: [],
+      },
+    }
   };
   // Revisamos el nivel de dificultad de la última partida
   const nivel = await knex.raw(
@@ -113,23 +117,36 @@ router.get('/:nickname', async (ctx) => {
     ORDER BY H.fecha DESC
     LIMIT 1;`
     );
+    response.partida.tablero.tamano = nivel.rows[0].tamano;
 
     // Consulta de imagenes
   const imagenes = await knex.raw(
-    `SELECT * FROM IMAGEN
+    `SELECT * FROM Imagen
     WHERE dificultad = '${nivel.rows[0].dificultad}'
     LIMIT ${nivel.rows[0].tamano};`
     );
 
   // Codificar imagenes
-  await asyncFor(imagenes.rows, response.tablero.imagenes);
+  await asyncFor(imagenes.rows, response.partida.tablero.imagenes);
 
   // Creación de nueva partida
-  const nuevaPartida = await knex.raw(
-    `INSERT INTO Partida DEFAULT VALUES;`
+  const maxIdPartida = await knex.raw(
+    `SELECT max(id) FROM Partida;`
   );
-  console.log(nuevaPartida);
+  response.partida.id = maxIdPartida.rows[0].max + 1;
+  await knex.raw(
+    `INSERT INTO Partida (id) VALUES (${maxIdPartida.rows[0].max}+1);`
+  ).then(async () => {
+    // Creacion de Historial
+    const date = new Date();
+    await knex.raw(
+      `INSERT INTO Historial (id_usuario, id_partida, fecha)
+      VALUES (${nivel.rows[0].id}, ${response.partida.id}, '${date.toISOString().replace('T', ' ').replace('Z', '')}')`
+    );
+  });
 
+
+  console.log(response)
   ctx.body = response;
 });
 

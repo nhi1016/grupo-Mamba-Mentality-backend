@@ -25,6 +25,10 @@ const borrarTablas = () => {
       console.log(`¡¡ Error al borrar Tabla: ${nombreTabla} !!`);
     }
   });
+  console.log('\n', '--------------------------------------------------');
 };
 
 borrarTablas();
+setTimeout(() => {
+  knex.destroy();
+}, '1000')

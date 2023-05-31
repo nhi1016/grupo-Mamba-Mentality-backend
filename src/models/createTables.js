@@ -3,7 +3,7 @@ const knex = require('../controllers/knex');
 
 const tablas = [
   'CREATE TABLE Usuario(id SERIAL PRIMARY KEY, nickname VARCHAR(30) UNIQUE NOT NULL, password VARCHAR(90));',
-  'CREATE TABLE Partida(id SERIAL PRIMARY KEY, score INT DEFAULT 0, vidas INT DEFAULT 4, tiempo_restante INT DEFAULT 600);',
+  "CREATE TABLE Partida(id SERIAL PRIMARY KEY, score INT DEFAULT 0, vidas INT DEFAULT 4, tiempo_restante INT DEFAULT 600, titulo VARCHAR(30) DEFAULT 'Nueva Partida' );",
   'CREATE TABLE Historial(id SERIAL PRIMARY KEY, id_usuario INT, id_partida INT, fecha TIMESTAMP, FOREIGN KEY(id_usuario) REFERENCES Usuario(id), FOREIGN KEY(id_partida) REFERENCES Partida(id));',
   'CREATE TABLE Tablero(id SERIAL PRIMARY KEY, tamano INT NOT NULL, dificultad VARCHAR(30) );',
   'CREATE TABLE Tablero_Partida(id SERIAL PRIMARY KEY, id_partida INT, id_tablero INT, FOREIGN KEY(id_partida) REFERENCES Partida(id), FOREIGN KEY(id_tablero) REFERENCES Tablero(id) );',
@@ -21,10 +21,14 @@ const crearTablas = () => {
       await knex.raw(instruction);
       console.log(`- Tabla: ${nombreTabla} creada exitosamente !!`);
     } catch (err) {
-    //   console.log(err.stack);
+      console.log(err.stack);
       console.log(`¡¡ Error al crear Tabla: ${nombreTabla} !!`);
     }
   });
+  console.log('\n', '--------------------------------------------------');
 };
 
 crearTablas();
+setTimeout(() => {
+  knex.destroy();
+}, '1000')

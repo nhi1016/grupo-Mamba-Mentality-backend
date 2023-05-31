@@ -9,21 +9,21 @@ const seeds = [
   (2, 'nikin', 4444),
   (3, 'roki', 5543);`,
   // Partida
-  `INSERT INTO Partida(id, score, vidas, tiempo_restante) VALUES 
-  (1, 0, 4, 600),
-  (2, 7, 2, 10),
-  (3, 4, 1, 20),
-  (4, 4, 1, 15);`,
+  `INSERT INTO Partida(id, score, vidas, tiempo_restante, titulo) VALUES 
+  (1, 0, 4, 600, 'Default#Robertin123'),
+  (2, 7, 2, 10, 'Default 2'),
+  (3, 4, 1, 20, 'Default 3'),
+  (4, 4, 1, 15, 'Default 4');`,
   // Historial
-  `INSERT INTO Historial(id, id_usuario, id_partida, fecha) VALUES 
-  (1, 1, 1, '2000-01-01 00:00:00.000'),
-  (2, 2, 2, '${date.toISOString().replace('T', ' ').replace('Z', '')}'),
-  (3, 2, 4, '2023-03-01 00:00:00.000');`,
+  `INSERT INTO Historial(id_usuario, id_partida, fecha) VALUES 
+  (1, 1, '2000-01-01 00:00:00.000'),
+  (2, 2, '${date.toISOString().replace('T', ' ').replace('Z', '')}'),
+  (2, 4, '2023-03-01 00:00:00.000');`,
   // Tablero
   `INSERT INTO Tablero(id, tamano, dificultad) VALUES 
-  (1, 4, 'fácil'),
+  (1, 4, 'facil'),
   (2, 4, 'medio'),
-  (3, 20, 'difícil');`,
+  (3, 20, 'dificil');`,
   // Tablero_Partida
   `INSERT INTO Tablero_Partida(id, id_partida, id_tablero) VALUES 
   (1, 1, 2),
@@ -106,6 +106,10 @@ const crearSeed = () => {
       console.log(`${err}`);
     });
   });
+  console.log('\n', '--------------------------------------------------');
 };
 
 crearSeed();
+setTimeout(() => {
+  knex.destroy();
+}, '1000')
