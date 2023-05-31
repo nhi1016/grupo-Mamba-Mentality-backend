@@ -68,12 +68,8 @@ Esta consiste en 5 entidades y 5 relaciones, las que se muestran como tablas a c
 # End-Point's
 + ``nombre`` - ``método http```- ``ruta`` - ``argumentos + formato`` - ``retorno + formato`` 
 + En la ventana inicio, cuando se apreta el boton jugar y no ha iniciado sesión se envía
-`metodo http`: ``POST``
+`metodo http`: ``GET``
 `ruta`: Game/FreeTrial
-``argumentos y formato``:
-{
-    nickname: 'Robertin123'
-}
 ``retorno y formato``:
 {
 	"usuario": {
