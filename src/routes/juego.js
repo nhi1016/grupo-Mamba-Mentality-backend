@@ -5,6 +5,31 @@ const path = require('node:path');
 
 const router = new Router();
 
+// Funciones a usar posteriormente
+function data64(pathData) {
+  return new Promise((res, rej) => {
+    fs.readFile(pathData, 'base64', (err, data) => {
+      if (err) {
+        rej(err);
+      } else {
+        res('data:image/png;base64,' + data);
+      }
+    });
+  });
+}
+async function asyncFor(iterable, out) {
+  await Promise.all(iterable.map(async (imagen, index) => {
+    const imgPath = path.join(__dirname, imagen.ruta, imagen.nombre);
+    const img64 = await data64(imgPath);
+    out[index] = {
+      id: imagen.id,
+      imagen: img64,
+    };
+  }));
+}
+// --------------------------------------
+
+// Crear partida de prueba de usuario no registrado
 router.get('/FreeTrial', async (ctx) => {
   // const reqBody = ctx.request.body;
   // console.log(reqBody);
@@ -55,37 +80,17 @@ router.get('/FreeTrial', async (ctx) => {
   // Consulta de imagenes
   const imagenes = await knex.raw("SELECT * FROM IMAGEN WHERE dificultad = 'facil' LIMIT 8;");
 
-  function data64(pathData) {
-    return new Promise((res, rej) => {
-      fs.readFile(pathData, 'base64', (err, data) => {
-        if (err) {
-          rej(err);
-        } else {
-          res('data:image/png;base64,' + data);
-        }
-      });
-    });
-  }
-  await Promise.all(imagenes.rows.map(async (imagen, index) => {
-    const imgPath = path.join(__dirname, imagen.ruta, imagen.nombre);
-    const img64 = await data64(imgPath);
-    response.tablero.imagenes[index] = {
-      id: imagen.id,
-      imagen: img64,
-    };
-  }));
-  console.log(response.tablero.imagenes.id);
+  // Codificar imagenes
+  await asyncFor(imagenes.rows, response.tablero.imagenes);
 
   ctx.body = response;
   ctx.status = 200;
 });
 
-router.post('/:nickname', async (ctx) => {
-  const reqBody = ctx.request.body;
-  console.log(reqBody);
-  // retornar 
-  // usuario, vidas, tiempo restante
-  // tamaño tablero, imagenes tablero, algunos bonus
+// Crear nueva partida de usuario registrado
+router.get('/:nickname', async (ctx) => {
+  const reqBody = ctx.params;
+
   const response = {
     usuario: {
       nickname: reqBody.nickname,
@@ -93,79 +98,42 @@ router.post('/:nickname', async (ctx) => {
     },
     tablero: {
       tamano: undefined,
-      imagenes: [],
       bonus: [],
+      imagenes: [],
     },
   };
-  const res = await knex.raw(
-    `SELECT * FROM Usuario U, Partida P, Historial H 
+  // Revisamos el nivel de dificultad de la última partida
+  const nivel = await knex.raw(
+    `SELECT U.id, U.nickname, T.tamano, T.dificultad FROM Usuario U, Historial H, Partida P, Tablero_Partida TP, Tablero T
     WHERE U.nickname = '${reqBody.nickname}'
-    AND H.id_usuario = U.id
-    AND P.id = H.id_partida;`,
+    AND U.id = H.id_usuario
+    AND H.id_partida = P.id
+    AND P.id = TP.id_partida
+    AND TP.id_tablero = T.id
+    ORDER BY H.fecha DESC
+    LIMIT 1;`
+    );
+
+    // Consulta de imagenes
+  const imagenes = await knex.raw(
+    `SELECT * FROM IMAGEN
+    WHERE dificultad = '${nivel.rows[0].dificultad}'
+    LIMIT ${nivel.rows[0].tamano};`
+    );
+
+  // Codificar imagenes
+  await asyncFor(imagenes.rows, response.tablero.imagenes);
+
+  // Creación de nueva partida
+  const nuevaPartida = await knex.raw(
+    `INSERT INTO Partida DEFAULT VALUES;`
   );
-  ctx.body = res.rows;
+  console.log(nuevaPartida);
+
+  ctx.body = response;
 });
 
+// Guardar partida de usuario registrado
+router.post('', async () => {});
+
 module.exports = router;
-
-// const imagenes = await knex.raw("SELECT * FROM IMAGEN WHERE dificultad = 'facil' LIMIT 2;");
-// const listaImagenes = [];
-
-// await Promise.all(imagenes.rows.map(async (tupla, index) => {
-//   const imgPath = path.format({
-//     dir: __dirname,
-//     base: path.join(tupla.ruta, tupla.nombre),
-//   });
-
-//   const img64 = await new Promise((resolve, reject) => {
-//     fs.readFile(imgPath, 'base64', (err, data) => {
-//       if (err) {
-//         reject(err);
-//       } else {
-//         resolve(data);
-//       }
-//     });
-//   });
-
-//   listaImagenes.push({
-//     id: tupla.id,
-//     imagen: 'data:image/png;base64,' + img64,
-//   });
-// }));
-
-// response.tablero.imagenes = listaImagenes;
-
-
-
-// const cargarImagenes = new Promise((res) => {
-//   const listaImagenes = [];
-//   imagenes.rows.forEach((tupla) => {
-//     console.log(tupla);
-//     const imgPath = path.format({
-//       dir: __dirname,
-//       base: path.join(tupla.ruta, tupla.nombre),
-//     });
-//     fs.readFile(imgPath, 'base64', (err, img64) => {
-//       if (err) {
-//         console.log(err);
-//         return;
-//       }
-//       listaImagenes.push({
-//         id: tupla.id,
-//         imagen: 'data:image/png;base64,' + img64,
-//       });
-//     });
-//   });
-//   response.tablero.imagenes = listaImagenes;
-//   res('ok');
-// });
-// await cargarImagenes;
-
-// const algo = new Promise((r) => {
-//   setTimeout(() => {
-//     console.log('algo')
-//     r('yes');
-//   }, '4000')
-  
-// })
-// await algo;

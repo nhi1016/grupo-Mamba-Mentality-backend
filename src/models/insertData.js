@@ -12,11 +12,13 @@ const seeds = [
   `INSERT INTO Partida(id, score, vidas, tiempo_restante) VALUES 
   (1, 0, 4, 600),
   (2, 7, 2, 10),
-  (3, 4, 1, 20);`,
+  (3, 4, 1, 20),
+  (4, 4, 1, 15);`,
   // Historial
   `INSERT INTO Historial(id, id_usuario, id_partida, fecha) VALUES 
   (1, 1, 1, '2000-01-01 00:00:00.000'),
-  (2, 2, 2, '${date.toISOString().replace('T', ' ').replace('Z', '')}');`,
+  (2, 2, 2, '${date.toISOString().replace('T', ' ').replace('Z', '')}'),
+  (3, 2, 4, '2023-03-01 00:00:00.000');`,
   // Tablero
   `INSERT INTO Tablero(id, tamano, dificultad) VALUES 
   (1, 4, 'fácil'),
