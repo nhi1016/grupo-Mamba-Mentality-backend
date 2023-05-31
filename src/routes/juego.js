@@ -67,15 +67,15 @@ router.get('/FreeTrial', async (ctx) => {
   response.tablero.bonus = [
     {
       tipo: res.rows[0].tipo_bonus,
-      descripsion: res.rows[0].bonus_descripcion,
+      descripcion: res.rows[0].bonus_descripcion,
     },
     {
       tipo: res.rows[1].tipo_bonus,
-      descripsion: res.rows[1].bonus_descripcion,
+      descripcion: res.rows[1].bonus_descripcion,
     },
     {
       tipo: res.rows[2].tipo_bonus,
-      descripsion: res.rows[2].bonus_descripcion,
+      descripcion: res.rows[2].bonus_descripcion,
     },
   ];
   // Consulta de imagenes
@@ -145,6 +145,18 @@ router.get('/:nickname', async (ctx) => {
     );
   });
 
+  // Creacion del tablero
+  await knex.raw(
+    `SELECT max(id) FROM Tablero`
+  )
+  await knex.raw(
+    `INSERT INTO Tablero (tamano, dificultad) VALUES (${nivel.rows[0].tamano}, ${nivel.rows[0].dificultad})`
+  ).then(async () => {
+    // Relacionar Tablero con Partida
+    await knex.raw(
+      `INSERT INTO Tablero_Partida (id_partida, id_tablero) VALUES (${}, ${})`
+    );
+  });
 
   console.log(response)
   ctx.body = response;

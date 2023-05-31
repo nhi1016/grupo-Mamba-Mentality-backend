@@ -20,14 +20,14 @@ const seeds = [
   (2, 2, '${date.toISOString().replace('T', ' ').replace('Z', '')}'),
   (2, 4, '2023-03-01 00:00:00.000');`,
   // Tablero
-  `INSERT INTO Tablero(id, tamano, dificultad) VALUES 
-  (1, 4, 'facil'),
-  (2, 4, 'medio'),
-  (3, 20, 'dificil');`,
+  `INSERT INTO Tablero(tamano, dificultad) VALUES 
+  (4, 'facil'),
+  (4, 'medio'),
+  (20, 'dificil');`,
   // Tablero_Partida
-  `INSERT INTO Tablero_Partida(id, id_partida, id_tablero) VALUES 
-  (1, 1, 2),
-  (2, 2, 1);`,
+  `INSERT INTO Tablero_Partida(id_partida, id_tablero) VALUES 
+  (1, 2),
+  (2, 1);`,
   // Imagen
   `INSERT INTO Imagen(id, nombre, dificultad, ruta) VALUES 
   (1, '1.png', 'facil', '../models/images'),
@@ -55,9 +55,9 @@ const seeds = [
   (23, '31.png', 'medio', '../models/images'),
   (24, '32.png', 'medio', '../models/images');`,
   // Tablero_Imagenes
-  `INSERT INTO Tablero_Imagenes(id, id_tablero, id_imagen) VALUES 
-  (1, 2, 1),
-  (2, 1, 2);`,
+  `INSERT INTO Tablero_Imagenes(id_tablero, id_imagen) VALUES 
+  (2, 1),
+  (1, 2);`,
   // R_Im_Im
   `INSERT INTO R_Im_Im(id, id_img1, id_img2) VALUES
   (1, 1, 1),
@@ -90,10 +90,10 @@ const seeds = [
   (2, 'transparencia', 'las imagenes se tornan transparentes por 4 segundos'),
   (3, 'pista', 'una pista de las posiciones del tablero relacionadas');`,
   // Partida_Bonus
-  `INSERT INTO Partida_Bonus(id, id_partida, id_bonus) VALUES 
-  (1, 1, 1),
-  (2, 1, 2),
-  (3, 1, 3);`,
+  `INSERT INTO Partida_Bonus(id_partida, id_bonus) VALUES 
+  (1, 1),
+  (1, 2),
+  (1, 3);`,
 ];
 
 const crearSeed = () => {
