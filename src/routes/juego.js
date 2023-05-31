@@ -19,8 +19,8 @@ router.get('/FreeTrial', async (ctx) => {
     tablero: {
       tiempo_restante: undefined,
       tamano: undefined,
-      imagenes: [],
       bonus: [],
+      imagenes: [],
     },
   };
   // Consulta para datos del tablero
@@ -53,8 +53,7 @@ router.get('/FreeTrial', async (ctx) => {
     },
   ];
   // Consulta de imagenes
-  const imagenes = await knex.raw("SELECT * FROM IMAGEN WHERE dificultad = 'facil' LIMIT 2;");
-  const listaImagenes = [];
+  const imagenes = await knex.raw("SELECT * FROM IMAGEN WHERE dificultad = 'facil' LIMIT 8;");
 
   function data64(pathData) {
     return new Promise((res, rej) => {
@@ -67,16 +66,15 @@ router.get('/FreeTrial', async (ctx) => {
       });
     });
   }
-  await Promise.all(imagenes.rows.map(async (tupla) => {
-    const imgPath = path.resolve(__dirname, '..', 'models', 'images', tupla.nombre);
+  await Promise.all(imagenes.rows.map(async (imagen, index) => {
+    const imgPath = path.join(__dirname, imagen.ruta, imagen.nombre);
     const img64 = await data64(imgPath);
-    listaImagenes.push({
-      id: tupla.id,
+    response.tablero.imagenes[index] = {
+      id: imagen.id,
       imagen: img64,
-    });
+    };
   }));
-  
-  response.tablero.imagenes = listaImagenes;
+  console.log(response.tablero.imagenes.id);
 
   ctx.body = response;
   ctx.status = 200;

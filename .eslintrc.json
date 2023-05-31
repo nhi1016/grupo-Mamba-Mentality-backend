@@ -13,10 +13,10 @@
     "rules": {
         "no-console": "off",
         "import/extensions": "off",
-        "import/order": "off",
+        "import/order": "off"//,
         // temporales
-        "no-await-in-loop": "off",
-        "no-restricted-syntax": ["error", "Some other restrictions", "ForOfStatement"]
+        // "no-await-in-loop": "off",
+        // "no-restricted-syntax": ["error", "Some other restrictions", "ForOfStatement"]
 
     }
 }
