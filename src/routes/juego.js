@@ -54,31 +54,35 @@ router.get('/FreeTrial', async (ctx) => {
   ];
   // Consulta de imagenes
   const imagenes = await knex.raw("SELECT * FROM IMAGEN WHERE dificultad = 'facil' LIMIT 2;");
-  const cargarImagenes = new Promise((res) => {
-    const listaImagenes = [];
-    imagenes.rows.forEach((tupla, index) => {
-      console.log(tupla)
-      const imgPath = path.format({
-        dir: __dirname,
-        base: path.join(tupla.ruta, tupla.nombre),
-      });
-      fs.readFile(imgPath, 'base64', (err, img64) => {
+  const listaImagenes = [];
+
+  function data64(pathData) {
+    return new Promise((res, rej) => {
+      fs.readFile(pathData, 'base64', (err, data) => {
         if (err) {
-          console.log(err);
-          return;
+          rej(err);
+        } else {
+          res('data:image/png;base64,' + data);
         }
-        listaImagenes.push({
-          id: tupla.id,
-          imagen: 'data:image/png;base64,' + img64,
-        });
       });
     });
-    res('ok');
+  }
+  const cargarImagenes = new Promise((res, rej) => {
+    imagenes.rows.forEach(async (tupla) => {
+      const imgPath = path.join(tupla.ruta, tupla.nombre);
+      const img64 = await data64(imgPath);
+      listaImagenes.push({
+        id: tupla.id,
+        imagen: img64,
+      });
+      if (listaImagenes) {
+        res('ok');
+      } else {
+        rej();
+      }
+    });
   });
-
   response.tablero.imagenes = listaImagenes;
-
-  // response.tablero.imagenes = imagenes.rows;
 
   ctx.body = response;
   ctx.status = 200;
@@ -111,3 +115,65 @@ router.post('/:nickname', async (ctx) => {
 });
 
 module.exports = router;
+
+// const imagenes = await knex.raw("SELECT * FROM IMAGEN WHERE dificultad = 'facil' LIMIT 2;");
+// const listaImagenes = [];
+
+// await Promise.all(imagenes.rows.map(async (tupla, index) => {
+//   const imgPath = path.format({
+//     dir: __dirname,
+//     base: path.join(tupla.ruta, tupla.nombre),
+//   });
+
+//   const img64 = await new Promise((resolve, reject) => {
+//     fs.readFile(imgPath, 'base64', (err, data) => {
+//       if (err) {
+//         reject(err);
+//       } else {
+//         resolve(data);
+//       }
+//     });
+//   });
+
+//   listaImagenes.push({
+//     id: tupla.id,
+//     imagen: 'data:image/png;base64,' + img64,
+//   });
+// }));
+
+// response.tablero.imagenes = listaImagenes;
+
+
+
+// const cargarImagenes = new Promise((res) => {
+//   const listaImagenes = [];
+//   imagenes.rows.forEach((tupla) => {
+//     console.log(tupla);
+//     const imgPath = path.format({
+//       dir: __dirname,
+//       base: path.join(tupla.ruta, tupla.nombre),
+//     });
+//     fs.readFile(imgPath, 'base64', (err, img64) => {
+//       if (err) {
+//         console.log(err);
+//         return;
+//       }
+//       listaImagenes.push({
+//         id: tupla.id,
+//         imagen: 'data:image/png;base64,' + img64,
+//       });
+//     });
+//   });
+//   response.tablero.imagenes = listaImagenes;
+//   res('ok');
+// });
+// await cargarImagenes;
+
+// const algo = new Promise((r) => {
+//   setTimeout(() => {
+//     console.log('algo')
+//     r('yes');
+//   }, '4000')
+  
+// })
+// await algo;
