@@ -154,7 +154,7 @@ router.get('/:nickname', async (ctx) => {
   ).then(async () => {
     // Relacionar Tablero con Partida
     await knex.raw(
-      `INSERT INTO Tablero_Partida (id_partida, id_tablero) VALUES (${}, ${})`
+      `INSERT INTO Tablero_Partida (id_partida, id_tablero) VALUES (${'?'}, ${'?'})`
     );
   });
 
