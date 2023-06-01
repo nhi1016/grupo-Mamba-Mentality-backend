@@ -26,7 +26,7 @@ async function asyncFor(iterable, out) {
     const img64 = await data64(imgPath);
     out[index] = {
       id: imagen.id,
-      // imagen: img64,
+      imagen: img64,
       posicion: index,
     };
   }));
