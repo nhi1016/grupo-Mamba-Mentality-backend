@@ -148,15 +148,16 @@ router.get('/:nickname', async (ctx) => {
   // Creacion del tablero
   await knex.raw(
     `SELECT max(id) FROM Tablero`
-  )
-  await knex.raw(
-    `INSERT INTO Tablero (tamano, dificultad) VALUES (${nivel.rows[0].tamano}, ${nivel.rows[0].dificultad})`
-  ).then(async () => {
-    // Relacionar Tablero con Partida
+  ).then(async (maxIdTablero) => {
     await knex.raw(
-      `INSERT INTO Tablero_Partida (id_partida, id_tablero) VALUES (${}, ${})`
-    );
-  });
+      `INSERT INTO Tablero (tamano, dificultad) VALUES (${nivel.rows[0].tamano}, '${nivel.rows[0].dificultad}')`
+    ).then(async (maxIdTablero) => {
+      // Relacionar Tablero con Partida
+      await knex.raw(
+        `INSERT INTO Tablero_Partida (id_partida, id_tablero) VALUES (${maxIdPartida}+1, ${maxIdTablero.rows[0].max}+1)`
+      );
+    });
+  })
 
   console.log(response)
   ctx.body = response;
