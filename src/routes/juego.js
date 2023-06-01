@@ -6,7 +6,9 @@ const { request } = require('http');
 
 const router = new Router();
 
-// Funciones a usar posteriormente
+// =====================================================
+//      Funciones a usar posteriormente
+// =====================================================
 function data64(pathData) {
   return new Promise((res, rej) => {
     fs.readFile(pathData, 'base64', (err, data) => {
@@ -24,71 +26,170 @@ async function asyncFor(iterable, out) {
     const img64 = await data64(imgPath);
     out[index] = {
       id: imagen.id,
-      imagen: img64,
+      // imagen: img64,
+      posicion: index,
     };
   }));
 }
-// --------------------------------------
+// =====================================================
 
+// =====================================================
 // Crear partida de prueba de usuario no registrado
+// =====================================================
 router.get('/FreeTrial', async (ctx) => {
-  // const reqBody = ctx.request.body;
-  // console.log(reqBody);
-
-  // Consulta por datos del usuario
-  const nicknameDefault = await knex.raw('SELECT nickname FROM Usuario WHERE id = 1');
   const response = {
     usuario: {
-      nickname: nicknameDefault.rows[0].nickname,
+      nickname: undefined,
+      id: undefined,
+    },
+    partida: {
+      id: undefined,
       vidas: undefined,
+      score: undefined,
+      tiempo_restante: undefined,
+      titulo: undefined,
+      dificultad: undefined,
     },
     tablero: {
-      tiempo_restante: undefined,
+      id: undefined,
       tamano: undefined,
       bonus: [],
       imagenes: [],
     },
   };
-  // Consulta para datos del tablero
-  const res = await knex.raw(
-    `SELECT U.nickname, P.vidas, P.tiempo_restante, T.tamano AS tamano_tablero, B.tipo AS tipo_bonus, B.descripcion AS bonus_descripcion
-    FROM Usuario U, Historial H, Partida P, Tablero T, Tablero_Partida TP, Bonus B, Partida_Bonus PB
-    WHERE U.nickname = '${response.usuario.nickname}'
-    AND H.id_usuario = U.id
-    AND P.id = H.id_partida
-    AND TP.id_partida = P.id
-    AND T.id = TP.id_tablero
-    AND P.id = PB.id_partida
-    AND PB.id_bonus = B.id;`,
-  );
-  response.usuario.vidas = res.rows[0].vidas;
-  response.tablero.tiempo_restante = res.rows[0].tiempo_restante;
-  response.tablero.tamano = res.rows[0].tamano_tablero;
-  response.tablero.bonus = [
-    {
-      tipo: res.rows[0].tipo_bonus,
-      descripcion: res.rows[0].bonus_descripcion,
-    },
-    {
-      tipo: res.rows[1].tipo_bonus,
-      descripcion: res.rows[1].bonus_descripcion,
-    },
-    {
-      tipo: res.rows[2].tipo_bonus,
-      descripcion: res.rows[2].bonus_descripcion,
-    },
-  ];
-  // Consulta de imagenes
-  const imagenes = await knex.raw("SELECT * FROM IMAGEN WHERE dificultad = 'facil' LIMIT 8;");
 
-  // Codificar imagenes
-  await asyncFor(imagenes.rows, response.tablero.imagenes);
+  // Consulta usuario default
+  const usuarioDefault = await knex.raw('SELECT nickname, password FROM Usuario WHERE id = 1');
+  // Crear usuario default
+  await knex.raw(
+    'SELECT MAX(id) FROM Usuario',
+  ).then(async (maxIdUsuario) => {
+    const newId = maxIdUsuario.rows[0].max + 1;
+    const newNickname = usuarioDefault.rows[0].nickname;
+    const newPass = usuarioDefault.rows[0].password;
+    response.usuario.id = newId;
+    response.usuario.nickname = newNickname;
+    await knex.raw(
+      `INSERT INTO Usuario (id, nickname, password)
+      VALUES (${newId}, '${newNickname} ${newId}', '${newPass}')`,
+    );
+  });
+  // Obtener partida default
+  await knex.raw(
+    `SELECT P.score, P.vidas, P.tiempo_restante, P.titulo, T.tamano, T.dificultad
+    FROM Partida P, Tablero T
+    WHERE P.id = 1
+    AND T.id = 1`,
+  ).then(async (partidaDefault) => {
+    const newScore = partidaDefault.rows[0].score;
+    const newVidas = partidaDefault.rows[0].vidas;
+    const newTiempo = partidaDefault.rows[0].tiempo_restante;
+    const newTitulo = partidaDefault.rows[0].titulo;
+    const newTamano = partidaDefault.rows[0].tamano;
+    const newDificultad = partidaDefault.rows[0].dificultad;
+    response.partida.score = newScore;
+    response.partida.vidas = newVidas;
+    response.partida.tiempo_restante = newTiempo;
+    response.partida.titulo = `${newTitulo} ${response.usuario.id}`;
+    response.tablero.tamano = newTamano;
+    response.partida.dificultad = newDificultad;
+    // Crear nueva partida default
+    await knex.raw(
+      'SELECT MAX(P.id) AS P_max, MAX(T.id) AS T_max FROM Partida P, Tablero T',
+    ).then(async (maxId) => {
+      const newIdPartida = maxId.rows[0].p_max + 1;
+      const newIdTablero = maxId.rows[0].t_max + 1;
+      response.partida.id = newIdPartida;
+      response.tablero.id = newIdTablero;
+      await knex.raw(
+        `INSERT INTO Partida (id, score, vidas, tiempo_restante, titulo) 
+        VALUES (${newIdPartida}, ${newScore}, ${newVidas}, ${newTiempo}, '${newTitulo}')`,
+      );
+      // Crear Tablero Default
+      await knex.raw(
+        `INSERT INTO Tablero (tamano, dificultad) 
+        VALUES (${newTamano}, '${newDificultad}')`,
+      );
+      // Crear relacion Tablero_Partida
+      await knex.raw(
+        `INSERT INTO Tablero_Partida (id_partida, id_tablero) 
+        VALUES (${newIdPartida}, ${newIdTablero})`,
+      );
+      // Crear relacion Histrial
+      const date = new Date();
+      const newFecha = date.toISOString().replace('T', ' ').replace('Z', '');
+      await knex.raw(
+        `INSERT INTO Historial (id_usuario, id_partida, fecha)
+        VALUES (${response.usuario.id}, ${newIdPartida}, '${newFecha}')`,
+      );
+    });
+  });
+  // Anadir Bonus a la partida y a la relacion Partida_Bonus
+  await knex.raw(
+    'SELECT * FROM Bonus',
+  ).then(async (resQuery) => {
+    const bonus = resQuery.rows;
+    response.tablero.bonus = [
+      {
+        id: bonus[0].id,
+        tipo: bonus[0].tipo,
+        descripcion: bonus[0].descripcion,
+        usado: 0,
+      },
+      {
+        id: bonus[1].id,
+        tipo: bonus[1].tipo,
+        descripcion: bonus[1].descripcion,
+        usado: 0,
+      },
+      {
+        id: bonus[2].id,
+        tipo: bonus[2].tipo,
+        descripcion: bonus[2].descripcion,
+        usado: 0,
+      },
+    ];
+    // Relacion Partida_Bonus
+    await Promise.all(
+      bonus.map(async (b) => {
+        await knex.raw(
+          `INSERT INTO Partida_Bonus (id_partida, id_bonus)
+          VALUES (${response.partida.id}, ${b.id})`,
+        );
+      }),
+    );
+  });
+  // Buscar imagenes para el tablero
+  await knex.raw(
+    `SELECT * FROM IMAGEN 
+    WHERE dificultad = '${response.partida.dificultad}' 
+    LIMIT ${response.tablero.tamano ** 2 / 2}`,
+  ).then(async (resQuery) => {
+    const imagenes = resQuery.rows;
+    // Codificar imagenes
+    await asyncFor(imagenes, response.tablero.imagenes);
+    // Crear nueva relacion Tablero_Imagenes
+    await Promise.all(
+      imagenes.map(async (img) => {
+        await knex.raw(
+          `INSERT INTO Tablero_Imagenes (id_tablero, id_imagen)
+          VALUES (${response.tablero.id}, ${img.id})`,
+        );
+      }),
+    );
+  });
 
   ctx.body = response;
   ctx.status = 200;
 });
+// =====================================================
+// =====================================================
 
+// -----------------------------------------------------
+
+// =====================================================
 // Crear nueva partida de usuario registrado
+// =====================================================
 router.get('/:nickname', async (ctx) => {
   const reqBody = ctx.params;
 
@@ -162,8 +263,14 @@ router.get('/:nickname', async (ctx) => {
   console.log(response)
   ctx.body = response;
 });
+// =====================================================
+// =====================================================
 
+// =====================================================
 // Guardar partida de usuario registrado
+// =====================================================
 router.post('', async () => {});
+// =====================================================
+// =====================================================
 
 module.exports = router;

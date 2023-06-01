@@ -5,15 +5,15 @@ const date = new Date();
 const seeds = [
   // Usuario
   `INSERT INTO Usuario(id, nickname, password) VALUES
-  (1, 'Robertin123', 1111),
+  (1, 'Default', 1111),
   (2, 'nikin', 4444),
   (3, 'roki', 5543);`,
   // Partida
   `INSERT INTO Partida(id, score, vidas, tiempo_restante, titulo) VALUES 
-  (1, 0, 4, 600, 'Default#Robertin123'),
-  (2, 7, 2, 10, 'Default 2'),
-  (3, 4, 1, 20, 'Default 3'),
-  (4, 4, 1, 15, 'Default 4');`,
+  (1, 0, 4, 600, 'Nueva Partida'),
+  (2, 7, 2, 10, 'Nueva Partida 2'),
+  (3, 4, 1, 20, 'Nueva Partida 3'),
+  (4, 4, 1, 15, 'Nueva Partida 4');`,
   // Historial
   `INSERT INTO Historial(id_usuario, id_partida, fecha) VALUES 
   (1, 1, '2000-01-01 00:00:00.000'),
@@ -26,8 +26,8 @@ const seeds = [
   (20, 'dificil');`,
   // Tablero_Partida
   `INSERT INTO Tablero_Partida(id_partida, id_tablero) VALUES 
-  (1, 2),
-  (2, 1);`,
+  (1, 1),
+  (2, 2);`,
   // Imagen
   `INSERT INTO Imagen(id, nombre, dificultad, ruta) VALUES 
   (1, '1.png', 'facil', '../models/images'),
@@ -56,8 +56,14 @@ const seeds = [
   (24, '32.png', 'medio', '../models/images');`,
   // Tablero_Imagenes
   `INSERT INTO Tablero_Imagenes(id_tablero, id_imagen) VALUES 
-  (2, 1),
-  (1, 2);`,
+  (1, 1),
+  (1, 2),
+  (1, 3),
+  (1, 4),
+  (1, 5),
+  (1, 6),
+  (1, 7),
+  (1, 8);`,
   // R_Im_Im
   `INSERT INTO R_Im_Im(id, id_img1, id_img2) VALUES
   (1, 1, 1),
