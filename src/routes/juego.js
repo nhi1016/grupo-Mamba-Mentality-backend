@@ -19,14 +19,19 @@ function data64(pathData) {
     });
   });
 }
-async function asyncFor(iterable, out) {
+async function asyncFor(lista, out) {
+  const iterable = lista[0];
+  const tableroImagen = lista[1];
   await Promise.all(iterable.map(async (imagen, index) => {
     const imgPath = path.join(__dirname, imagen.ruta, imagen.nombre);
     const img64 = await data64(imgPath);
     out[index] = {
       id: imagen.id,
-      // imagen: img64,
-      posicion: index,
+      imagen: img64,
+      posicion: tableroImagen[index].posicion,
+      visible: tableroImagen[index].visible,
+      enlazada: tableroImagen[index].enlazada,
+      descripsion: tableroImagen[index].descripsion,
     };
   }));
 }
@@ -160,22 +165,30 @@ router.get('/FreeTrial', async (ctx) => {
   });
   // Buscar imagenes para el tablero
   await knex.raw(
-    `SELECT * FROM IMAGEN 
+    `SELECT * FROM Imagen 
     WHERE dificultad = '${response.partida.dificultad}' 
     LIMIT ${response.tablero.tamano ** 2 / 2}`,
   ).then(async (resQuery) => {
     const imagenes = resQuery.rows;
-    // Codificar imagenes
-    await asyncFor(imagenes, response.tablero.imagenes);
     // Crear nueva relacion Tablero_Imagenes
     await Promise.all(
-      imagenes.map(async (img) => {
+      imagenes.map(async (img, index) => {
         await knex.raw(
-          `INSERT INTO Tablero_Imagenes (id_tablero, id_imagen)
-          VALUES (${response.tablero.id}, ${img.id})`,
+          `INSERT INTO Tablero_Imagenes (id_tablero, id_imagen, posicion)
+          VALUES (${response.tablero.id}, ${img.id}, ${index})`,
         );
       }),
     );
+    // Codificar imagenes
+    await knex.raw(
+      `SELECT * FROM Tablero_Imagenes TI
+      WHERE TI.id_tablero = ${response.tablero.id}`,
+    ).then(async (resQuery) => {
+      const tableroImagen = resQuery.rows;
+      const imagenesDuplicadas = imagenes.concat(imagenes);
+      console.log(tableroImagen)
+      await asyncFor([imagenesDuplicadas, tableroImagen], response.tablero.imagenes);
+    });
   });
 
   ctx.body = response;
@@ -271,6 +284,16 @@ router.get('/:nickname', async (ctx) => {
 // Guardar partida de usuario registrado
 // =====================================================
 router.post('/Save', async (ctx) => {
+  const reqBody = ctx.request.body;
+
+});
+// =====================================================
+// =====================================================
+
+// =====================================================
+// Borrar partida
+// =====================================================
+router.post('/Delete', async (ctx) => {
   const reqBody = ctx.request.body;
 
 });

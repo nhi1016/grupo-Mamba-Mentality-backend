@@ -55,15 +55,15 @@ const seeds = [
   (23, '31.png', 'medio', '../models/images'),
   (24, '32.png', 'medio', '../models/images');`,
   // Tablero_Imagenes
-  `INSERT INTO Tablero_Imagenes(id_tablero, id_imagen) VALUES 
-  (1, 1),
-  (1, 2),
-  (1, 3),
-  (1, 4),
-  (1, 5),
-  (1, 6),
-  (1, 7),
-  (1, 8);`,
+  `INSERT INTO Tablero_Imagenes(id_tablero, id_imagen, posicion) VALUES 
+  (1, 1, 0),
+  (1, 2, 1),
+  (1, 3, 2),
+  (1, 4, 3),
+  (1, 5, 4),
+  (1, 6, 5),
+  (1, 7, 6),
+  (1, 8, 7);`,
   // R_Im_Im
   `INSERT INTO R_Im_Im(id, id_img1, id_img2) VALUES
   (1, 1, 1),
@@ -91,10 +91,10 @@ const seeds = [
   (23, 23, 24),
   (24, 24, 23);`,
   // Bonus
-  `INSERT INTO Bonus(id, tipo, descripcion) VALUES 
-  (1, 'vista rápida', 'puedes ver las imagenes por 3 segundos'),
-  (2, 'transparencia', 'las imagenes se tornan transparentes por 4 segundos'),
-  (3, 'pista', 'una pista de las posiciones del tablero relacionadas');`,
+  `INSERT INTO Bonus(id, tipo, duracion, descripcion) VALUES 
+  (1, 'vista rápida', 1, 'puedes ver las imagenes por 3 segundos'),
+  (2, 'transparencia', 2, 'las imagenes se tornan transparentes por 4 segundos'),
+  (3, 'pista', 4, 'una pista de las posiciones del tablero relacionadas');`,
   // Partida_Bonus
   `INSERT INTO Partida_Bonus(id_partida, id_bonus) VALUES 
   (1, 1),

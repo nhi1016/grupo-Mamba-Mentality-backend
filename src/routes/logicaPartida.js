@@ -23,12 +23,19 @@ router.post('/checkimages', async (ctx) => {
         WHERE RI.id_img1 = ${reqBody.id_img1}`,
   );
 
-  // Las imágenes coinsiden
   if (resQuery.rows[0].id_img2 === reqBody.id_img2) {
+    // Las imágenes coinsiden
     response.relacion_imagenes = 1;
     response.partida.vidas = reqBody.partida.vidas;
     response.comentario.push('Relación entre imagenes correcta');
+    await knex.raw(
+      `UPDATE Tablero_Imagenes
+      SET enlazada = 1
+      WHERE id_tablero = ${}
+      AND id_imagen = ${}`,
+    );
   } else {
+    // Imagenes no coinciden
     response.relacion_imagenes = 0;
     const vidas = await knex.raw(
       `SELECT vidas FROM Partida
@@ -67,5 +74,15 @@ module.exports = router;
 
 // Termina el juego cuando:
 //  1. Se enlazan todas las imagenes
-//  2. Cuando se acaba el tiempo
-// Falta logica para ocupar bonus
+//  2. Cuando se acaba el tiempo (despues)
+// Falta logica para ocupar bonus (se pueden ocupar una sola vez)
+//  1. Agregar propiedad de imagen visible o no y un tiempo de duración
+//  2. Agregar propiedad de imagen transarente y un tiempo de duración
+//  3. Agregar propiedad de comentario a la imagen y un tiempo de duración
+// Bonus -> agregar tiempo de duración
+// Opsiones del juego
+//  1. guardar
+//  2. Pausa -> agregar propiedad de imagen de bloquear
+//    -> detener el tiempo
+//  3. abandonar
+//    -> borrar la partida default
