@@ -92,9 +92,9 @@ const seeds = [
   (24, 24, 23);`,
   // Bonus
   `INSERT INTO Bonus(id, tipo, duracion, descripcion) VALUES 
-  (1, 'vista rápida', 1, 'puedes ver las imagenes por 3 segundos'),
-  (2, 'transparencia', 2, 'las imagenes se tornan transparentes por 4 segundos'),
-  (3, 'pista', 4, 'una pista de las posiciones del tablero relacionadas');`,
+  (1, 'vista rápida', 1, 'Puedes ver todas las imagenes por 1 segundos'),
+  (2, 'transparencia', 2, 'Todas las imagenes se tornan transparentes por 2 segundos'),
+  (3, 'pista', 4, 'Tienes una pista de las posiciones del tablero relacionadas por 4 segundos');`,
   // Partida_Bonus
   `INSERT INTO Partida_Bonus(id_partida, id_bonus) VALUES 
   (1, 1),

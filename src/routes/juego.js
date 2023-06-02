@@ -27,11 +27,12 @@ async function asyncFor(lista, out) {
     const img64 = await data64(imgPath);
     out[index] = {
       id: imagen.id,
-      imagen: img64,
+      // imagen: img64,
       posicion: tableroImagen[index].posicion,
       visible: tableroImagen[index].visible,
       enlazada: tableroImagen[index].enlazada,
       descripsion: tableroImagen[index].descripsion,
+      bloqueada: tableroImagen[index].bloqueada,
     };
   }));
 }
@@ -171,8 +172,10 @@ router.get('/FreeTrial', async (ctx) => {
   ).then(async (resQuery) => {
     const imagenes = resQuery.rows;
     // Crear nueva relacion Tablero_Imagenes
+    const imagenesDuplicadas = imagenes.concat(imagenes); // Para un tablero que tenga todas las
+    //                                           imagenes diferenctes no se debe duplicar las listas
     await Promise.all(
-      imagenes.map(async (img, index) => {
+      imagenesDuplicadas.map(async (img, index) => {
         await knex.raw(
           `INSERT INTO Tablero_Imagenes (id_tablero, id_imagen, posicion)
           VALUES (${response.tablero.id}, ${img.id}, ${index})`,
@@ -185,9 +188,9 @@ router.get('/FreeTrial', async (ctx) => {
       WHERE TI.id_tablero = ${response.tablero.id}`,
     ).then(async (resQuery) => {
       const tableroImagen = resQuery.rows;
-      const imagenesDuplicadas = imagenes.concat(imagenes);
-      console.log(tableroImagen)
-      await asyncFor([imagenesDuplicadas, tableroImagen], response.tablero.imagenes);
+      // Para un tablero que tenga todas las imagenes diferenctes no se debe duplicar las listas
+      const tableroImagenDuplicado = tableroImagen.concat(tableroImagen);
+      await asyncFor([imagenesDuplicadas, tableroImagenDuplicado], response.tablero.imagenes);
     });
   });
 
@@ -283,10 +286,7 @@ router.get('/:nickname', async (ctx) => {
 // =====================================================
 // Guardar partida de usuario registrado
 // =====================================================
-router.post('/Save', async (ctx) => {
-  const reqBody = ctx.request.body;
-
-});
+router.post('/Save', async (ctx) => {});
 // =====================================================
 // =====================================================
 
@@ -295,7 +295,47 @@ router.post('/Save', async (ctx) => {
 // =====================================================
 router.post('/Delete', async (ctx) => {
   const reqBody = ctx.request.body;
+  const response = {
+    comentario: [],
+  };
 
+  await knex.raw(
+    `SELECT * FROM Historial H
+    WHERE H.id_usuario = ${reqBody.usuario.id}
+    AND H.id_partida = ${reqBody.partida.id}`,
+  ).then(async (reqQuery) => {
+    const historial = reqQuery.rows[0];
+    if (historial) {
+      // Tablero
+      await knex.raw(
+        `DELETE FROM Tablero
+        WHERE id = (
+          SELECT id_tablero FROM Tablero_Partida
+          WHERE id_partida = ${historial.id_partida}
+          )`,
+      );
+      // Usuario
+      await knex.raw(
+        `DELETE FROM Usuario
+        WHERE id = ${historial.id_usuario}`,
+      );
+      // Partida
+      await knex.raw(
+        `DELETE FROM Partida
+        WHERE id = ${historial.id_partida}`,
+      );
+      // Historial
+      // Tablero_Partida
+      // Tablero_Imagenes
+      // Partida_Bonus
+      response.comentario.push('Partida Borrada exitoamente');
+    } else {
+      response.comentario.push('Error al borrar la partida, No existe relación entre usuario y partida');
+    }
+  });
+
+  ctx.body = response;
+  ctx.status = 200;
 });
 // =====================================================
 // =====================================================

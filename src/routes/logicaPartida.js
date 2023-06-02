@@ -16,6 +16,7 @@ router.post('/checkimages', async (ctx) => {
     },
     relacion_imagenes: undefined, // booleano {1 o 0}
     comentario: [], // no es necesario para el funcionamiento
+    imagenes: [],
   };
 
   const resQuery = await knex.raw(
@@ -30,10 +31,40 @@ router.post('/checkimages', async (ctx) => {
     response.comentario.push('Relación entre imagenes correcta');
     await knex.raw(
       `UPDATE Tablero_Imagenes
-      SET enlazada = 1
-      WHERE id_tablero = ${}
-      AND id_imagen = ${}`,
+      SET enlazada = 1, visible = 1, bloqueada = 1
+      WHERE id_tablero = ${reqBody.tablero.id}
+      AND (
+        id_imagen = ${reqBody.id_img1}
+        OR id_imagen = ${reqBody.id_img2}
+        )`,
     );
+    response.comentario.push('Se bloquearan y se pondrán visibles las imagenes enlazadas');
+    response.imagenes = [
+      {
+        id: reqBody.id_img1,
+        visible: 1,
+        enlazada: 1,
+        bloqueada: 1,
+      }, {
+        id: reqBody.id_img2,
+        visible: 1,
+        enlazada: 1,
+        bloqueada: 1,
+      }];
+    // Revision si estan todas las imagenes enlazadas, es decir, terminó el juego
+    await knex.raw(
+      `SELECT SUM(enlazada) FROM Tablero_Imagenes
+      WHERE id_tablero = ${reqBody.tablero.id}`,
+    ).then(async (resQuery) => {
+      const res = await knex.raw(`SELECT * FROM Tablero WHERE id = ${reqBody.tablero.id}`);
+      const tablero = res.rows[0];
+      const cantidadEnlazada = resQuery.rows[0].sum;
+      const cantidadDeImagenes = tablero.tamano ** 2;
+      if (cantidadEnlazada >= cantidadDeImagenes) {
+        response.partida.activa = 0;
+        response.comentario.push('!! Genial ¡¡ ganaste, haz enlazado todas las imagenes correctamente');
+      }
+    });
   } else {
     // Imagenes no coinciden
     response.relacion_imagenes = 0;
@@ -70,19 +101,116 @@ router.post('/checkimages', async (ctx) => {
 
 // -----------------------------------------------------
 
+// =====================================================
+//   Utilizacion de bonus
+// =====================================================
+router.post('/usebonus', async (ctx) => {
+  const reqBody = ctx.request.body;
+
+  const response = {
+    comentario: [], // no es necesario para el funcionamiento
+    imagenes: [],
+    partida: {
+      bonus: [],
+    },
+    tablero: {
+      imagenes: [],
+    },
+  };
+
+  const resQuery = await knex.raw(
+    `SELECT * FROM Partida_Bonus PB, Bonus B
+    WHERE PB.id_partida = ${reqBody.partida.id}
+    AND PB.id_bonus = ${reqBody.partida.bonus_a_usar}
+    AND PB.usado = 0
+    AND B.id = PB.id_bonus`,
+  );
+  const bonus = resQuery.rows[0];
+  if (bonus) {
+    await knex.raw(
+      `UPDATE Partida_Bonus
+      SET usado = 1
+      WHERE id_partida = ${reqBody.partida.id}
+      AND id_bonus = ${reqBody.partida.bonus_a_usar}`,
+    );
+    // Actualizacion del estado de las imagenes
+    await knex.raw(
+      `SELECT * FROM Tablero_Imagenes TI, Bonus B
+      WHERE TI.id_tablero = ${reqBody.tablero.id}
+      AND B.id = ${bonus.id}`,
+    ).then(async (resQuery) => {
+      const datosImagenes = resQuery.rows;
+      await Promise.all(
+        datosImagenes.map((dato) => {
+          response.imagenes.push(
+            {
+              id: dato.id_imagen,
+              accion_temporal: dato.tipo,
+              descripsion_temporal: dato.descripcion,
+              duracion_de_bonus: dato.duracion,
+            },
+          );
+        }),
+      );
+    });
+    switch (bonus.id) {
+      case 1:
+        // Bonus 1
+        response.comentario.push(`${bonus.tipo}: ${bonus.descripcion}`);
+        break;
+      case 2:
+        // Bonus 2
+        response.comentario.push(`${bonus.tipo}: ${bonus.descripcion}`);
+        break;
+      default:
+        // Bonus 3
+        response.comentario.push(`${bonus.tipo}: ${bonus.descripcion}`);
+    }
+    // Envian los datos temporales de cambio de las imagenes
+  } else {
+    // no hay bonus
+    response.comentario.push('No puedes usar el bonus espesificado');
+  }
+  // Actualiza los datos de bonus
+  await knex.raw(
+    `SELECT * FROM Partida_Bonus PB, Bonus B
+    WHERE PB.id_partida = ${reqBody.partida.id}
+    AND B.id = PB.id_bonus`,
+  ).then(async (resQuery) => {
+    response.comentario.push(`Se actualizó el estado "usado" del bonus ${reqBody.partida.bonus_a_usar}`);
+    const bonus2 = resQuery.rows;
+    await Promise.all(
+      bonus2.map((bon, index) => {
+        response.partida.bonus[index] = {
+          id: bon.id,
+          tipo: bon.tipo,
+          descripsion: bon.descripsion,
+          usado: bon.usado,
+        };
+      }),
+    );
+  });
+
+  ctx.body = response;
+  ctx.status = 200;
+});
+// =====================================================
+// =====================================================
+
 module.exports = router;
 
-// Termina el juego cuando:
-//  1. Se enlazan todas las imagenes
-//  2. Cuando se acaba el tiempo (despues)
-// Falta logica para ocupar bonus (se pueden ocupar una sola vez)
-//  1. Agregar propiedad de imagen visible o no y un tiempo de duración
-//  2. Agregar propiedad de imagen transarente y un tiempo de duración
-//  3. Agregar propiedad de comentario a la imagen y un tiempo de duración
-// Bonus -> agregar tiempo de duración
+// [hecho] Termina el juego cuando:
+//  1. [hecho] Se enlazan todas las imagenes
+//  2. [despues] Cuando se acaba el tiempo (despues)
+// [hecho] Falta logica para ocupar bonus (se pueden ocupar una sola vez)
+//  1. [hecho] Agregar propiedad de imagen visible o no y un tiempo de duración
+//  2. [hecho] Agregar propiedad de imagen transarente y un tiempo de duración
+//  3. [hecho] Agregar propiedad de comentario a la imagen y un tiempo de duración
+// [hecho] Bonus -> agregar tiempo de duración
 // Opsiones del juego
-//  1. guardar
-//  2. Pausa -> agregar propiedad de imagen de bloquear
+//  1. (despues) guardar
+//  2. (despues) Pausa -> agregar propiedad de imagen de bloquear
 //    -> detener el tiempo
 //  3. abandonar
 //    -> borrar la partida default
+// Modificar scor dependiendo del tiempo que se demoro en terminar
