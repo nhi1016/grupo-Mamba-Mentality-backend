@@ -13,6 +13,7 @@ router.post('/checkimages', async (ctx) => {
     partida: {
       vidas: undefined,
       activa: 1, // Bool, para seguir jugando debe ser 1
+      score: undefined,
     },
     relacion_imagenes: undefined, // booleano {1 o 0}
     comentario: [], // no es necesario para el funcionamiento
@@ -63,6 +64,23 @@ router.post('/checkimages', async (ctx) => {
       if (cantidadEnlazada >= cantidadDeImagenes) {
         response.partida.activa = 0;
         response.comentario.push('!! Genial ¡¡ ganaste, haz enlazado todas las imagenes correctamente');
+        // Asignacion de puntaje
+        await knex.raw(
+          `SELECT * FROM Partida P
+          WHERE P.id = ${reqBody.partida.id}`
+        ).then(async (resQuery) => {
+          const partida = resQuery.rows[0];
+          const tiempoDisponible = partida.tiempo_restante;
+          const tiempoUsado = tiempoDisponible - reqBody.partida.tiempo_disponible;
+          const score = Math.round(tiempoUsado / tiempoDisponible) * 6 + 2;
+          await knex.raw(
+            `UPDATE Partida
+            SET score = ${score}
+            WHERE id = ${reqBody.partida.id}`
+          );
+          response.partida.score = score;
+          response.comentario.push(`Has obtenido un puntaje de ${score} puntos`);
+        });
       }
     });
   } else {
