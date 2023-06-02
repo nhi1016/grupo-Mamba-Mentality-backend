@@ -13,7 +13,8 @@
     "rules": {
         "no-console": "off",
         "import/extensions": "off",
-        "import/order": "off"//,
+        "import/order": "off",
+        "no-param-reassign": "off"
         // temporales
         // "no-await-in-loop": "off",
         // "no-restricted-syntax": ["error", "Some other restrictions", "ForOfStatement"]

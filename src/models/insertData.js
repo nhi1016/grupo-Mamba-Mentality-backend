@@ -118,4 +118,4 @@ const crearSeed = () => {
 crearSeed();
 setTimeout(() => {
   knex.destroy();
-}, '1000')
+}, '1000');

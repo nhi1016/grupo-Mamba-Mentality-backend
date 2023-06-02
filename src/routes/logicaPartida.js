@@ -64,3 +64,8 @@ router.post('/checkimages', async (ctx) => {
 // -----------------------------------------------------
 
 module.exports = router;
+
+// Termina el juego cuando:
+//  1. Se enlazan todas las imagenes
+//  2. Cuando se acaba el tiempo
+// Falta logica para ocupar bonus
