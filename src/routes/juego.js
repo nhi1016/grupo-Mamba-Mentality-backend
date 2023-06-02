@@ -163,9 +163,9 @@ router.get('/:nickname', async (ctx) => {
 });
 
 // Guardar partida de usuario registrado
-router.post('', async (ctx) => {
+router.post('/prueba_post', async (ctx) => {
   const reqBody = ctx.request.body;
-  const nickname = reqBody.nickname; // O reqBody.nickname, dependiendo de lo que convenga
+  const nickname = reqBody.nickname;
   const idPartida = reqBody.id_partida;
   const nuevoTituloTablero = reqBody.nuevo_titulo_tablero;
 
@@ -173,7 +173,7 @@ router.post('', async (ctx) => {
   if (reqBody.guardar) {
     // Actualizar el título del tablero si se proporcionó un nuevo título
     if (nuevoTituloTablero) {
-      await knex.raw(`UPDATE Tablero SET titulo = ? WHERE id IN (SELECT id_tablero FROM Tablero_Partida WHERE id_partida = ?)`, [nuevoTituloTablero, idPartida]);
+      await knex.raw(`UPDATE partida SET titulo = ? WHERE id IN (SELECT id_tablero FROM tablero_partida WHERE id_partida = ?)`, [nuevoTituloTablero, idPartida]);
     }
 
     // Responder con un mensaje de éxito
@@ -188,16 +188,16 @@ router.post('', async (ctx) => {
     const { id_tablero } = await knex.raw(`SELECT id_tablero FROM Tablero_Partida WHERE id_partida = ?`, [idPartida]).rows[0];
 
     // Eliminar las filas de la tabla Partida_Bonus asociadas a la partida
-    await knex.raw(`DELETE FROM Partida_Bonus WHERE id_partida = ?`, [idPartida]);
+    await knex.raw(`DELETE FROM partida_bonus WHERE id_partida = ?`, [idPartida]);
 
     // Eliminar el tablero
-    await knex.raw(`DELETE FROM Tablero WHERE id = ?`, [id_tablero]);
+    await knex.raw(`DELETE FROM tablero WHERE id = ?`, [id_tablero]);
 
     // Eliminar la fila de Tablero_Partida asociada a la partida
-    await knex.raw(`DELETE FROM Tablero_Partida WHERE id_partida = ?`, [idPartida]);
+    await knex.raw(`DELETE FROM tablero_partida WHERE id_partida = ?`, [idPartida]);
 
     // Eliminar la partida
-    await knex.raw(`DELETE FROM Partida WHERE id = ?`, [idPartida]);
+    await knex.raw(`DELETE FROM partida WHERE id = ?`, [idPartida]);
 
     // Responder con un mensaje de éxito
     ctx.body = { message: 'Partida eliminada exitosamente' };
