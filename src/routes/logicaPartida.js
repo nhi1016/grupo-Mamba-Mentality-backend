@@ -215,6 +215,44 @@ router.post('/usebonus', async (ctx) => {
 // =====================================================
 // =====================================================
 
+// -----------------------------------------------------
+
+// =====================================================
+//   Termino el tiempo
+// =====================================================
+router.post('/timeout', async (ctx) => {
+  const reqBody = ctx.request.body;
+  const response = {
+    partida: {
+      activa: undefined,
+    },
+    comentario: [],
+  }
+  // Revisión usuario correcto
+  await knex.raw(
+    `SELECT * FROM Historial H
+    WHERE H.id = ${reqBody.usuario.id}
+    AND H.id = ${reqBody.partida.id}`,
+  ).then(async (resQuery) => {
+    const partida = resQuery.rows[0];
+    if (partida) {
+      await knex.raw(
+        `UPDATE Partida
+        SET score = 0, tiempo_restante = 0
+        WHERE id = ${reqBody.partida.id}`,
+      );
+      response.comentario.push('Tiempo terminado');
+    } else {
+      response.comentario.push('Error al terminar partida, usuario y partida no coinciden');
+    }
+  });
+
+  ctx.body = response;
+  ctx.status = 200;
+});
+// =====================================================
+// =====================================================
+
 module.exports = router;
 
 // [hecho] Termina el juego cuando:
@@ -232,3 +270,4 @@ module.exports = router;
 //  3. abandonar
 //    -> borrar la partida default
 // Modificar scor dependiendo del tiempo que se demoro en terminar
+// Endpoint para tiempo terminado, hecho
