@@ -14,7 +14,8 @@
         "no-console": "off",
         "import/extensions": "off",
         "import/order": "off",
-        "no-param-reassign": "off"
+        "no-param-reassign": "off",
+        "no-shadow": "off"
         // temporales
         // "no-await-in-loop": "off",
         // "no-restricted-syntax": ["error", "Some other restrictions", "ForOfStatement"]

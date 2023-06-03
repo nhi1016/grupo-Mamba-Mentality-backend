@@ -27,7 +27,7 @@ async function asyncFor(lista, out) {
     const img64 = await data64(imgPath);
     out[index] = {
       id: imagen.id,
-      // imagen: img64,
+      imagen: img64.slice(0, 30), // Posteriormente quitar el slice
       posicion: tableroImagen[index].posicion,
       visible: tableroImagen[index].visible,
       enlazada: tableroImagen[index].enlazada,
@@ -286,7 +286,7 @@ router.get('/:nickname', async (ctx) => {
 // =====================================================
 // Guardar partida de usuario registrado
 // =====================================================
-router.post('/Save', async (ctx) => {});
+router.post('/Save', async () => {});
 // =====================================================
 // =====================================================
 
@@ -298,7 +298,6 @@ router.post('/Delete', async (ctx) => {
   const response = {
     comentario: [],
   };
-  console.log(reqBody)
 
   await knex.raw(
     `SELECT * FROM Historial H
@@ -329,7 +328,7 @@ router.post('/Delete', async (ctx) => {
       // Tablero_Partida
       // Tablero_Imagenes
       // Partida_Bonus
-      response.comentario.push('Partida Borrada exitoamente');
+      response.comentario.push('Partida Borrada exitosamente');
     } else {
       response.comentario.push('Error al borrar la partida, No existe relación entre usuario y partida');
     }

@@ -66,38 +66,7 @@ Esta consiste en 5 entidades y 5 relaciones, las que se muestran como tablas a c
 > Incertar imagen
 
 # End-Point's
-+ ``nombre`` - ``método http```- ``ruta`` - ``argumentos + formato`` - ``retorno + formato`` 
-+ En la ventana inicio, cuando se apreta el boton jugar y no ha iniciado sesión se envía
-`metodo http`: ``GET``
-`ruta`: Game/FreeTrial
-``retorno y formato``:
-{
-	"usuario": {
-		"nickname": "Robertin123",
-		"vidas": 4
-	},
-	"tablero": {
-		"tiempo_restante": 600,
-		"tamano": 4,
-		"imagenes": [],
-		"bonus": [
-			{
-				"tipo": "vista rápida",
-				"descripsion": "puedes ver las imagenes por 3 segundos"
-			},
-			{
-				"tipo": "transparencia",
-				"descripsion": "las imagenes se tornan transparentes por 4 segundos"
-			},
-			{
-				"tipo": "pista",
-				"descripsion": "una pista de las posiciones del tablero relacionadas"
-			}
-		]
-	}
-}
-+ En la ventana inicio, cuando se apreta el boton jugar y si ha iniciado sesión se envía
-/Game/nickname
-{
-    nickname: 'nickname'
-}
+La documentación se puede revisar en el siguiente link
+```link
+	https://documenter.getpostman.com/view/27779437/2s93sW8FjL
+```

@@ -13,6 +13,8 @@ const tablas = [
   'CREATE TABLE Bonus(id SERIAL PRIMARY KEY, tipo VARCHAR(30), duracion INT, descripcion VARCHAR(90) );',
   'CREATE TABLE Partida_Bonus(id SERIAL PRIMARY KEY, id_partida INT NOT NULL, id_bonus INT NOT NULL, usado INT DEFAULT 0, FOREIGN KEY(id_partida) REFERENCES Partida(id) ON DELETE CASCADE, FOREIGN KEY(id_bonus) REFERENCES Bonus(id) );',
 ];
+// crear la propiedad "activa" en Partida, para consultar si la partida
+// está activa o no en el endpoint checkimages
 
 const crearTablas = () => {
   tablas.forEach(async (instruction) => {

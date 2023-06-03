@@ -1,3 +1,4 @@
+/* eslint-disable array-callback-return */
 const Router = require('koa-router');
 const knex = require('../controllers/knex');
 
@@ -67,7 +68,7 @@ router.post('/checkimages', async (ctx) => {
         // Asignacion de puntaje
         await knex.raw(
           `SELECT * FROM Partida P
-          WHERE P.id = ${reqBody.partida.id}`
+          WHERE P.id = ${reqBody.partida.id}`,
         ).then(async (resQuery) => {
           const partida = resQuery.rows[0];
           const tiempoDisponible = partida.tiempo_restante;
@@ -76,7 +77,7 @@ router.post('/checkimages', async (ctx) => {
           await knex.raw(
             `UPDATE Partida
             SET score = ${score}
-            WHERE id = ${reqBody.partida.id}`
+            WHERE id = ${reqBody.partida.id}`,
           );
           response.partida.score = score;
           response.comentario.push(`Has obtenido un puntaje de ${score} puntos`);
@@ -159,6 +160,7 @@ router.post('/usebonus', async (ctx) => {
     ).then(async (resQuery) => {
       const datosImagenes = resQuery.rows;
       await Promise.all(
+        // eslint-disable-next-line array-callback-return
         datosImagenes.map((dato) => {
           response.imagenes.push(
             {
@@ -256,19 +258,7 @@ router.post('/timeout', async (ctx) => {
 
 module.exports = router;
 
-// [hecho] Termina el juego cuando:
-//  1. [hecho] Se enlazan todas las imagenes
-//  2. [despues] Cuando se acaba el tiempo (despues)
-// [hecho] Falta logica para ocupar bonus (se pueden ocupar una sola vez)
-//  1. [hecho] Agregar propiedad de imagen visible o no y un tiempo de duración
-//  2. [hecho] Agregar propiedad de imagen transarente y un tiempo de duración
-//  3. [hecho] Agregar propiedad de comentario a la imagen y un tiempo de duración
-// [hecho] Bonus -> agregar tiempo de duración
 // Opsiones del juego
 //  1. (despues) guardar
 //  2. (despues) Pausa -> agregar propiedad de imagen de bloquear
 //    -> detener el tiempo
-//  3. abandonar
-//    -> borrar la partida default
-// Modificar scor dependiendo del tiempo que se demoro en terminar
-// Endpoint para tiempo terminado, hecho
