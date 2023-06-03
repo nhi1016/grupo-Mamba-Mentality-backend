@@ -31,4 +31,4 @@ const borrarTablas = () => {
 borrarTablas();
 setTimeout(() => {
   knex.destroy();
-}, '1000')
+}, '1000');
