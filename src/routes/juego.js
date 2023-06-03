@@ -298,6 +298,7 @@ router.post('/Delete', async (ctx) => {
   const response = {
     comentario: [],
   };
+  console.log(reqBody)
 
   await knex.raw(
     `SELECT * FROM Historial H

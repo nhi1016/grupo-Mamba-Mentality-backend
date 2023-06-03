@@ -227,12 +227,12 @@ router.post('/timeout', async (ctx) => {
       activa: undefined,
     },
     comentario: [],
-  }
+  };
   // Revisión usuario correcto
   await knex.raw(
     `SELECT * FROM Historial H
-    WHERE H.id = ${reqBody.usuario.id}
-    AND H.id = ${reqBody.partida.id}`,
+    WHERE H.id_usuario = ${reqBody.usuario.id}
+    AND H.id_partida = ${reqBody.partida.id}`,
   ).then(async (resQuery) => {
     const partida = resQuery.rows[0];
     if (partida) {
@@ -242,6 +242,7 @@ router.post('/timeout', async (ctx) => {
         WHERE id = ${reqBody.partida.id}`,
       );
       response.comentario.push('Tiempo terminado');
+      response.partida.activa = 0;
     } else {
       response.comentario.push('Error al terminar partida, usuario y partida no coinciden');
     }
