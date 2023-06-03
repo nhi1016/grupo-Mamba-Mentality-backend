@@ -75,7 +75,7 @@ Esta consiste en 5 entidades y 5 relaciones, las que se muestran como tablas a c
 9. Bonus
 10. Partida_Bonus
 
-> Incertar imagen
+![](Modelos/db.png)
 
 # End-Point's
 La documentación se puede revisar en el siguiente link
