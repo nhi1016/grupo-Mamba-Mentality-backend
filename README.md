@@ -31,7 +31,7 @@ El cual instalará los siguientes paquetes:
 + `pg`
 
 # Instrucciones para levantar el servidos
-1. Definir la variable de entorno `PORT` en el archivo `.env`, por ejemplot (`PORT=3000`)
+1. Definir la variable de entorno `PORT` en el archivo `.env`, por ejemplo (`PORT=3000`)
 
 # Instrucciones para levantar la Base de Datos
 1. Es necesario crear las variables de entorno en el archivo `.env` en el directorio `/`
@@ -54,13 +54,13 @@ El cual instalará los siguientes paquetes:
     CREATE DATABASE DB_NAME WITH OWNER DB_USER;
     ```
 4. Con el comando ``yarn migrar_db`` se crea la DB necearia
-5. Con el comando ``yarn seed_db`` se incertan datos para testear la DB
+5. Con el comando ``yarn seed_db`` se insertan datos para testear la DB
 6. Con el comando ``desmigrar_db`` se borran las tablas de la DB
 
 \* Notar que despues de migrar y desmigrar la conexión con la DB queda habierta durante unos 60 segundos aproximadamente. Para terminar esa espera se puede ejecutar el comando `yarn migrar_all` que agrupa los tres anteriores
 
 ## Consultas a la DDBB
-Para otorgar seguridad al proyecto de `SQL injections` se desidió utilizar `Knex.js` como query builder en vez de un ORM como `Sequelize`, ya que nos permite modelar la DDBB y mantener un control sobre ella y sobre sus relaciones, además que el lenguaje de consulta es más intuitivo y parecido a ``SQL`` en consola
+Para otorgar seguridad al proyecto de `SQL injections` se decidió utilizar `Knex.js` como query builder en vez de un ORM como `Sequelize`, ya que nos permite modelar la DDBB y mantener un control sobre ella y sobre sus relaciones, además que el lenguaje de consulta es más intuitivo y parecido a ``SQL`` en consola
 
 # La Base de Datos
 Esta consiste en 5 entidades y 5 relaciones, las que se muestran como tablas a continuación:
