@@ -56,10 +56,11 @@ El cual instalará los siguientes paquetes:
 4. Con el comando ``yarn migrar_db`` se crea la DB necearia
 5. Con el comando ``yarn seed_db`` se incertan datos para testear la DB
 6. Con el comando ``desmigrar_db`` se borran las tablas de la DB
-\* Notar que despues de migrar y desmigrar la conexión con la DB queda habierta durante unos 60 segundos aproximadamente. Para terminar esa espera con `ctrl-c` termina sin causar problemas.
+
+\* Notar que despues de migrar y desmigrar la conexión con la DB queda habierta durante unos 60 segundos aproximadamente. Para terminar esa espera se puede ejecutar el comando `yarn migrar_all` que agrupa los tres anteriores
 
 ## Consultas a la DDBB
-Para otorgar seguridad al proyecto de `SQL injections` se desidió utilizar `Knex.js` como query builder en vez de un ORM como `Sequelize`, ya que nos permite modelar la DDBB y las relaciones a nuestro gusto, además que el lenguaje de consulta es más intuitivo y parecido a ``SQL`` en consola
+Para otorgar seguridad al proyecto de `SQL injections` se desidió utilizar `Knex.js` como query builder en vez de un ORM como `Sequelize`, ya que nos permite modelar la DDBB y mantener un control sobre ella y sobre sus relaciones, además que el lenguaje de consulta es más intuitivo y parecido a ``SQL`` en consola
 
 # La Base de Datos
 Esta consiste en 5 entidades y 5 relaciones, las que se muestran como tablas a continuación:
@@ -78,6 +79,4 @@ Esta consiste en 5 entidades y 5 relaciones, las que se muestran como tablas a c
 
 # End-Point's
 La documentación se puede revisar en el siguiente link
-```link
-	https://documenter.getpostman.com/view/27779437/2s93sW8FjL
-```
+https://documenter.getpostman.com/view/27779437/2s93sW8FjL
