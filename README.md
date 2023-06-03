@@ -78,5 +78,12 @@ Esta consiste en 5 entidades y 5 relaciones, las que se muestran como tablas a c
 ![](Modelos/db.png)
 
 # End-Point's
-La documentación se puede revisar en el siguiente link
+La documentación se puede revisar en el siguiente link, el cual está escrito en postman, por lo que para tener una visión completa, se debe cambiar manualmente por los **Example Request**, los cuales muestran todos los casos posibles de un endpoint.
+
 https://documenter.getpostman.com/view/27779437/2s93sW8FjL
+
+## Puntos a considerar
++ Se usó Gitflow durante toda esta entrega
++ Se utilizó ESLint durante toda esta entrega para corregir errores y ajustar el estilo a "AirBNB"
++ Se agregó dinamismo a la vista de instrucciones del frontend, que quedó pendiente en la entrega pasada. Esta se puede ver en el *branch MAIN* del frontend luego de ejecutar `yarn vite`
++ Se avanzó en la vista del tablero en el repositorio del frontend, la cual se puede revisar en el *branch MAIN* luego de correr `yarn vite` en `http://localhost:5173/Board` del repositorio frontend
