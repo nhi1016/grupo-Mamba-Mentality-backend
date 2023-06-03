@@ -1,4 +1,15 @@
-# grupo-Mamba-Mentality-backend
+<p align="center">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Escudo_de_la_Pontificia_Universidad_Cat%C3%B3lica_de_Chile.svg/1200px-Escudo_de_la_Pontificia_Universidad_Cat%C3%B3lica_de_Chile.svg.png" width="120px">
+    <h1 align="center">Tecnología y Aplicaciones Web: Entrega 2</h1>
+    <h1 align="center">Grupo Mamba-Mentality</h1>
+</p>
+
+# Integrantes
+
+| Nombre                     | Email                  | Github                                                   |
+| -------------------------- | ---------------------- | -------------------------------------------------------- |
+| Gerardo Castro :red_car:  | gicastro@uc.cl  | [@GerardoICF](https://github.com/GerardoICF)               |
+| Nicolás Herrera :smile: | nhi1016@uc.cl   | [@nhi1016 ](https://github.com/nhi1016)        |
 
 ## Para instalar el proyecto se debe ejecutar
 ```console
@@ -45,10 +56,11 @@ El cual instalará los siguientes paquetes:
 4. Con el comando ``yarn migrar_db`` se crea la DB necearia
 5. Con el comando ``yarn seed_db`` se incertan datos para testear la DB
 6. Con el comando ``desmigrar_db`` se borran las tablas de la DB
-\* Notar que despues de migrar y desmigrar la conexión con la DB queda habierta durante unos 60 segundos aproximadamente. Para terminar esa espera con `ctrl-c` termina sin causar problemas.
+
+\* Notar que despues de migrar y desmigrar la conexión con la DB queda habierta durante unos 60 segundos aproximadamente. Para terminar esa espera se puede ejecutar el comando `yarn migrar_all` que agrupa los tres anteriores
 
 ## Consultas a la DDBB
-Para otorgar seguridad al proyecto de `SQL injections` se desidió utilizar `Knex.js` como query builder en vez de un ORM como `Sequelize`, ya que nos permite modelar la DDBB y las relaciones a nuestro gusto, además que el lenguaje de consulta es más intuitivo y parecido a ``SQL`` en consola
+Para otorgar seguridad al proyecto de `SQL injections` se desidió utilizar `Knex.js` como query builder en vez de un ORM como `Sequelize`, ya que nos permite modelar la DDBB y mantener un control sobre ella y sobre sus relaciones, además que el lenguaje de consulta es más intuitivo y parecido a ``SQL`` en consola
 
 # La Base de Datos
 Esta consiste en 5 entidades y 5 relaciones, las que se muestran como tablas a continuación:
@@ -63,45 +75,15 @@ Esta consiste en 5 entidades y 5 relaciones, las que se muestran como tablas a c
 9. Bonus
 10. Partida_Bonus
 
-> Incertar imagen
+![](Modelos/db.png)
 
 # End-Point's
-+ ``nombre`` - ``método http```- ``ruta`` - ``argumentos + formato`` - ``retorno + formato`` 
-+ En la ventana inicio, cuando se apreta el boton jugar y no ha iniciado sesión se envía
-`metodo http`: ``POST``
-`ruta`: Game/FreeTrial
-``argumentos y formato``:
-{
-    nickname: 'Robertin123'
-}
-``retorno y formato``:
-{
-	"usuario": {
-		"nickname": "Robertin123",
-		"vidas": 4
-	},
-	"tablero": {
-		"tiempo_restante": 600,
-		"tamano": 4,
-		"imagenes": [],
-		"bonus": [
-			{
-				"tipo": "vista rápida",
-				"descripsion": "puedes ver las imagenes por 3 segundos"
-			},
-			{
-				"tipo": "transparencia",
-				"descripsion": "las imagenes se tornan transparentes por 4 segundos"
-			},
-			{
-				"tipo": "pista",
-				"descripsion": "una pista de las posiciones del tablero relacionadas"
-			}
-		]
-	}
-}
-+ En la ventana inicio, cuando se apreta el boton jugar y si ha iniciado sesión se envía
-/Game/nickname
-{
-    nickname: 'nickname'
-}
+La documentación se puede revisar en el siguiente link, el cual está escrito en postman, por lo que para tener una visión completa, se debe cambiar manualmente por los **Example Request**, los cuales muestran todos los casos posibles de un endpoint.
+
+https://documenter.getpostman.com/view/27779437/2s93sW8FjL
+
+## Puntos a considerar
++ Se usó Gitflow durante toda esta entrega
++ Se utilizó ESLint durante toda esta entrega para corregir errores y ajustar el estilo a "AirBNB"
++ Se agregó dinamismo a la vista de instrucciones del frontend, que quedó pendiente en la entrega pasada. Esta se puede ver en el *branch MAIN* del frontend luego de ejecutar `yarn vite`
++ Se avanzó en la vista del tablero en el repositorio del frontend, la cual se puede revisar en el *branch MAIN* luego de correr `yarn vite` en `http://localhost:5173/Board` del repositorio frontend
