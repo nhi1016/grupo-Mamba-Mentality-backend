@@ -1,4 +1,15 @@
-# grupo-Mamba-Mentality-backend
+<p align="center">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Escudo_de_la_Pontificia_Universidad_Cat%C3%B3lica_de_Chile.svg/1200px-Escudo_de_la_Pontificia_Universidad_Cat%C3%B3lica_de_Chile.svg.png" width="120px">
+    <h1 align="center">Tecnología y Aplicaciones Web: Entrega 2</h1>
+    <h1 align="center">Grupo Mamba-Mentality</h1>
+</p>
+
+# Integrantes
+
+| Nombre                     | Email                  | Github                                                   |
+| -------------------------- | ---------------------- | -------------------------------------------------------- |
+| Gerardo Castro :red_car:  | gicastro@uc.cl  | [@GerardoICF](https://github.com/GerardoICF)               |
+| Nicolás Herrera :smile: | nhi1016@uc.cl   | [@nhi1016 ](https://github.com/nhi1016)        |
 
 ## Para instalar el proyecto se debe ejecutar
 ```console
