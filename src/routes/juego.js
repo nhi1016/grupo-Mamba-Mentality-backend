@@ -38,6 +38,23 @@ async function asyncFor(lista, out) {
 }
 // =====================================================
 
+router.get('/probando', async (ctx) => {
+  const p = await knex('partida').max('id');
+  const t = await knex('tablero').max('id');
+  const dic = {
+    max_p: p[0].max,
+    max_t: t[0].max,
+  };
+  (async () => {
+    console.log(dic);
+  })();
+  // .catch((error) => {
+  //   console.log('Error:', error);
+  // };
+  ctx.body = '<h1>Ok</h1>';
+  ctx.status = 201;
+});
+
 // =====================================================
 // Crear partida de prueba de usuario no registrado
 // =====================================================
@@ -64,71 +81,93 @@ router.get('/FreeTrial', async (ctx) => {
   };
 
   // Consulta usuario default
-  const usuarioDefault = await knex.raw('SELECT nickname, password FROM Usuario WHERE id = 1');
+  // const usuarioDefault = await knex.raw('SELECT nickname, password FROM Usuario WHERE id = 1');
+  const usuarioDefault = await knex.select('nickname, password').from('usuario').where('id', '1');
   // Crear usuario default
-  await knex.raw(
-    'SELECT MAX(id) FROM Usuario',
-  ).then(async (maxIdUsuario) => {
-    const newId = maxIdUsuario.rows[0].max + 1;
-    const newNickname = usuarioDefault.rows[0].nickname;
-    const newPass = usuarioDefault.rows[0].password;
-    response.usuario.id = newId;
-    response.usuario.nickname = newNickname;
-    await knex.raw(
-      `INSERT INTO Usuario (id, nickname, password)
-      VALUES (${newId}, '${newNickname} ${newId}', '${newPass}')`,
-    );
-  });
-  // Obtener partida default
-  await knex.raw(
-    `SELECT P.score, P.vidas, P.tiempo_restante, P.titulo, T.tamano, T.dificultad
-    FROM Partida P, Tablero T
-    WHERE P.id = 1
-    AND T.id = 1`,
-  ).then(async (partidaDefault) => {
-    const newScore = partidaDefault.rows[0].score;
-    const newVidas = partidaDefault.rows[0].vidas;
-    const newTiempo = partidaDefault.rows[0].tiempo_restante;
-    const newTitulo = partidaDefault.rows[0].titulo;
-    const newTamano = partidaDefault.rows[0].tamano;
-    const newDificultad = partidaDefault.rows[0].dificultad;
-    response.partida.score = newScore;
-    response.partida.vidas = newVidas;
-    response.partida.tiempo_restante = newTiempo;
-    response.partida.titulo = `${newTitulo} ${response.usuario.id}`;
-    response.tablero.tamano = newTamano;
-    response.partida.dificultad = newDificultad;
-    // Crear nueva partida default
-    await knex.raw(
-      'SELECT MAX(P.id) AS P_max, MAX(T.id) AS T_max FROM Partida P, Tablero T',
-    ).then(async (maxId) => {
-      const newIdPartida = maxId.rows[0].p_max + 1;
-      const newIdTablero = maxId.rows[0].t_max + 1;
-      response.partida.id = newIdPartida;
-      response.tablero.id = newIdTablero;
-      await knex.raw(
-        `INSERT INTO Partida (id, score, vidas, tiempo_restante, titulo) 
-        VALUES (${newIdPartida}, ${newScore}, ${newVidas}, ${newTiempo}, '${newTitulo}')`,
-      );
-      // Crear Tablero Default
-      await knex.raw(
-        `INSERT INTO Tablero (tamano, dificultad) 
-        VALUES (${newTamano}, '${newDificultad}')`,
-      );
-      // Crear relacion Tablero_Partida
-      await knex.raw(
-        `INSERT INTO Tablero_Partida (id_partida, id_tablero) 
-        VALUES (${newIdPartida}, ${newIdTablero})`,
-      );
-      // Crear relacion Histrial
-      const date = new Date();
-      const newFecha = date.toISOString().replace('T', ' ').replace('Z', '');
-      await knex.raw(
-        `INSERT INTO Historial (id_usuario, id_partida, fecha)
-        VALUES (${response.usuario.id}, ${newIdPartida}, '${newFecha}')`,
-      );
+  // await knex.raw(
+  //   'SELECT MAX(id) FROM Usuario',
+  // )
+  await knex('usuario').max('id as max_id')
+    .then(async (maxIdUsuario) => {
+      const newId = maxIdUsuario[0].max_id + 1;
+      const newNickname = usuarioDefault[0].nickname;
+      const newPass = usuarioDefault[0].password;
+      response.usuario.id = newId;
+      response.usuario.nickname = newNickname;
+      // await knex.raw(
+      //   `INSERT INTO Usuario (id, nickname, password)
+      //   VALUES (${newId}, '${newNickname} ${newId}', '${newPass}')`,
+      // );
+      await knex
+        .insert([{
+          id: newId,
+          nickname: newNickname,
+          password: newPass,
+        }])
+        .into('usuario');
     });
-  });
+  // Obtener partida default
+  // await knex.raw(
+  //   `SELECT P.score, P.vidas, P.tiempo_restante, P.titulo, T.tamano, T.dificultad
+  //   FROM Partida P, Tablero T
+  //   WHERE P.id = 1
+  //   AND T.id = 1`,
+  // )
+  await knex.select('P.score, P.vidas, P.tiempo_restante, P.titulo, T.tamano, T.dificultad')
+    .from('partida as P')
+    .where({ 'P.id': 1 })
+    .join('tablero as T', 'P.id', 1)
+    .then(async (partidaDefault) => {
+      const newScore = partidaDefault[0].score;
+      const newVidas = partidaDefault[0].vidas;
+      const newTiempo = partidaDefault[0].tiempo_restante;
+      const newTitulo = partidaDefault[0].titulo;
+      const newTamano = partidaDefault[0].tamano;
+      const newDificultad = partidaDefault[0].dificultad;
+      response.partida.score = newScore;
+      response.partida.vidas = newVidas;
+      response.partida.tiempo_restante = newTiempo;
+      response.partida.titulo = `${newTitulo} ${response.usuario.id}`;
+      response.tablero.tamano = newTamano;
+      response.partida.dificultad = newDificultad;
+      // Crear nueva partida default
+      // await knex.raw(
+      //   'SELECT MAX(P.id) AS P_max, MAX(T.id) AS T_max FROM Partida P, Tablero T',
+      //   )
+      const partida = await knex('partida').max('id');
+      const tablero = await knex('tablero').max('id');
+      const maxId = {
+        p_max: partida[0].max,
+        t_max: tablero[0].max,
+      };
+      (async () => {
+        const newIdPartida = maxId.p_max + 1;
+        const newIdTablero = maxId.t_max + 1;
+        response.partida.id = newIdPartida;
+        response.tablero.id = newIdTablero;
+        await knex.raw(
+          `INSERT INTO Partida (id, score, vidas, tiempo_restante, titulo) 
+          VALUES (${newIdPartida}, ${newScore}, ${newVidas}, ${newTiempo}, '${newTitulo}')`,
+        );
+        // Crear Tablero Default
+        await knex.raw(
+          `INSERT INTO Tablero (tamano, dificultad) 
+          VALUES (${newTamano}, '${newDificultad}')`,
+        );
+        // Crear relacion Tablero_Partida
+        await knex.raw(
+          `INSERT INTO Tablero_Partida (id_partida, id_tablero) 
+          VALUES (${newIdPartida}, ${newIdTablero})`,
+        );
+        // Crear relacion Histrial
+        const date = new Date();
+        const newFecha = date.toISOString().replace('T', ' ').replace('Z', '');
+        await knex.raw(
+          `INSERT INTO Historial (id_usuario, id_partida, fecha)
+          VALUES (${response.usuario.id}, ${newIdPartida}, '${newFecha}')`,
+        );
+      })();
+    });
   // Anadir Bonus a la partida y a la relacion Partida_Bonus
   await knex.raw(
     'SELECT * FROM Bonus',
@@ -287,7 +326,7 @@ router.get('/:nickname', async (ctx) => {
 // Guardar partida de usuario registrado
 router.post('/prueba_post', async (ctx) => {
   const reqBody = ctx.request.body;
-  const nickname = reqBody.nickname;
+  // const { nickname } = reqBody;
   const idPartida = reqBody.id_partida;
   const nuevoTituloTablero = reqBody.nuevo_titulo_tablero;
 
@@ -295,7 +334,9 @@ router.post('/prueba_post', async (ctx) => {
   if (reqBody.guardar) {
     // Actualizar el título del tablero si se proporcionó un nuevo título
     if (nuevoTituloTablero) {
-      await knex.raw(`UPDATE partida SET titulo = ? WHERE id IN (SELECT id_tablero FROM tablero_partida WHERE id_partida = ?)`, [nuevoTituloTablero, idPartida]);
+      await knex.raw(`
+        UPDATE partida SET titulo = ? WHERE id IN (SELECT id_tablero FROM tablero_partida WHERE id_partida = ?)
+        `, [nuevoTituloTablero, idPartida]);
     }
 
     // Responder con un mensaje de éxito
@@ -304,22 +345,34 @@ router.post('/prueba_post', async (ctx) => {
     // Eliminar la partida, tablero y tablas relacionadas
 
     // Eliminar las filas de Historial asociadas a la partida
-    await knex.raw(`DELETE FROM Historial WHERE id_partida = ?`, [idPartida]);
+    await knex.raw(`
+      DELETE FROM Historial WHERE id_partida = ?
+      `, [idPartida]);
 
     // Obtener el ID del tablero asociado a la partida
-    const { id_tablero } = await knex.raw(`SELECT id_tablero FROM Tablero_Partida WHERE id_partida = ?`, [idPartida]).rows[0];
+    const { idTablero } = await knex.raw(`
+      SELECT id_tablero FROM Tablero_Partida WHERE id_partida = ?
+      `, [idPartida]).rows[0];
 
     // Eliminar las filas de la tabla Partida_Bonus asociadas a la partida
-    await knex.raw(`DELETE FROM partida_bonus WHERE id_partida = ?`, [idPartida]);
+    await knex.raw(`
+      DELETE FROM partida_bonus WHERE id_partida = ?
+      `, [idPartida]);
 
     // Eliminar el tablero
-    await knex.raw(`DELETE FROM tablero WHERE id = ?`, [id_tablero]);
+    await knex.raw(`
+      DELETE FROM tablero WHERE id = ?
+      `, [idTablero]);
 
     // Eliminar la fila de Tablero_Partida asociada a la partida
-    await knex.raw(`DELETE FROM tablero_partida WHERE id_partida = ?`, [idPartida]);
+    await knex.raw(`
+      DELETE FROM tablero_partida WHERE id_partida = ?
+      `, [idPartida]);
 
     // Eliminar la partida
-    await knex.raw(`DELETE FROM partida WHERE id = ?`, [idPartida]);
+    await knex.raw(`
+      DELETE FROM partida WHERE id = ?
+      `, [idPartida]);
 
     // Responder con un mensaje de éxito
     ctx.body = { message: 'Partida eliminada exitosamente' };
