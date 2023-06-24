@@ -146,7 +146,7 @@ router.get('/FreeTrial', async (ctx) => {
         response.partida.id = newIdPartida;
         response.tablero.id = newIdTablero;
         // await knex.raw(
-        //   `INSERT INTO Partida (id, score, vidas, tiempo_restante, titulo) 
+        //   `INSERT INTO Partida (id, score, vidas, tiempo_restante, titulo)
         //   VALUES (${newIdPartida}, ${newScore}, ${newVidas}, ${newTiempo}, '${newTitulo}')`,
         // )
         await knex
@@ -160,7 +160,7 @@ router.get('/FreeTrial', async (ctx) => {
           .into('partidas');
         // Crear Tablero Default
         // await knex.raw(
-        //   `INSERT INTO Tablero (tamano, dificultad) 
+        //   `INSERT INTO Tablero (tamano, dificultad)
         //   VALUES (${newTamano}, '${newDificultad}')`,
         // );
         await knex
@@ -171,7 +171,7 @@ router.get('/FreeTrial', async (ctx) => {
           .into('tablero');
         // Crear relacion Tablero_Partida
         // await knex.raw(
-        //   `INSERT INTO Tablero_Partida (id_partida, id_tablero) 
+        //   `INSERT INTO Tablero_Partida (id_partida, id_tablero)
         //   VALUES (${newIdPartida}, ${newIdTablero})`,
         // );
         await knex
@@ -235,7 +235,7 @@ router.get('/FreeTrial', async (ctx) => {
             id_partida: response.partida.id,
             id_bonus: b.id,
           }])
-          .into('partida_bonus');
+            .into('partida_bonus');
         }),
       );
     });
@@ -244,17 +244,17 @@ router.get('/FreeTrial', async (ctx) => {
     `SELECT * FROM Imagen 
     WHERE dificultad = '${response.partida.dificultad}' 
     LIMIT ${response.tablero.tamano ** 2 / 2}`,
-    )
+  );
   await knex
     .select('*')
     .from('imagen')
-    .where({ 'dificultad': response.partida.dificultad })
+    .where({ dificultad: response.partida.dificultad })
     .limit(response.tablero.tamano ** 2 / 2)
     .then(async (imagenes) => {
       // const imagenes = resQuery.rows;
       // Crear nueva relacion Tablero_Imagenes
       const imagenesDuplicadas = imagenes.concat(imagenes); // Para un tablero que tenga todas las
-      //                                           imagenes diferenctes no se debe duplicar las listas
+      //                                       imagenes diferenctes no se debe duplicar las listas
       await Promise.all(
         imagenesDuplicadas.map(async (img, index) => {
           // await knex.raw(
@@ -264,7 +264,7 @@ router.get('/FreeTrial', async (ctx) => {
           await knex
             .insert([{
               id_tablero: response.tablero.id,
-              id_imagen:img.id,
+              id_imagen: img.id,
               posicion: index,
             }])
             .into('tablero_imagenes');
@@ -279,7 +279,7 @@ router.get('/FreeTrial', async (ctx) => {
         .select('*')
         .from('tablero_imagenes as TI')
         .where({
-          'TI.id_tablero': response.tablero.id
+          'TI.id_tablero': response.tablero.id,
         })
         .then(async (tableroImagen) => {
           // const tableroImagen = resQuery.rows;
@@ -319,7 +319,7 @@ router.get('/:nickname', async (ctx) => {
   };
   // Revisamos el nivel de dificultad de la última partida
   // const nivel = await knex.raw(
-  //   `SELECT U.id, U.nickname, T.tamano, T.dificultad 
+  //   `SELECT U.id, U.nickname, T.tamano, T.dificultad
   //   FROM Usuario U, Historial H, Partida P, Tablero_Partida TP, Tablero T
   //   WHERE U.nickname = '${reqBody.nickname}'
   //   AND U.id = H.id_usuario
@@ -339,10 +339,10 @@ router.get('/:nickname', async (ctx) => {
     .join('tablero_partida AS TP', 'TP.id_partida', 'P.id')
     .join('tablero AS T', 'T.id', 'TP.id_tablero')
     .orderBy([{
-      column: 'H.fecha', 
-      order: 'desc'
+      column: 'H.fecha',
+      order: 'desc',
     }])
-    .limit(1)
+    .limit(1);
   response.partida.tablero.tamano = nivel[0].tamano;
 
   // Consulta de imagenes
@@ -361,22 +361,28 @@ router.get('/:nickname', async (ctx) => {
   // Codificar imagenes
   await asyncFor(imagenes.rows, response.partida.tablero.imagenes);
 
-  Creación de nueva partida
-  const maxIdPartida = await knex.raw(
-    'SELECT max(id) FROM Partida;',
-  )
+  // Creación de nueva partida
+  // const maxIdPartida = await knex.raw(
+  //   'SELECT max(id) FROM Partida;',
+  // )
   const maxIdPartida = await knex('partida').max('id');
   response.partida.id = maxIdPartida[0].max + 1;
-  await knex.raw(
-    `INSERT INTO Partida (id) VALUES (${maxIdPartida[0].max}+1);`,
-  ).then(async () => {
-    // Creacion de Historial
-    const date = new Date();
-    await knex.raw(
-      `INSERT INTO Historial (id_usuario, id_partida, fecha)
-      VALUES (${nivel.rows[0].id}, ${response.partida.id}, '${date.toISOString().replace('T', ' ').replace('Z', '')}')`,
-    );
-  });
+  // await knex.raw(
+  //   `INSERT INTO Partida (id) VALUES (${maxIdPartida[0].max}+1);`,
+  //   )
+  await knex
+    .insert([{
+      id: maxIdPartida[0].max + 1,
+    }])
+    .into('partida')
+    .then(async () => {
+      // Creacion de Historial
+      const date = new Date();
+      await knex.raw(
+        `INSERT INTO Historial (id_usuario, id_partida, fecha)
+        VALUES (${nivel.rows[0].id}, ${response.partida.id}, '${date.toISOString().replace('T', ' ').replace('Z', '')}')`,
+      );
+    });
 
   // Creacion del tablero
   await knex.raw(
