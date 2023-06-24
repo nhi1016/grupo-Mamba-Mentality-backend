@@ -10,8 +10,7 @@ router.post('/', async (ctx) => {
 });
 
 router.get('/', async (ctx) => {
-  const res = await knex.raw('SELECT * FROM Usuario;');
-  ctx.body = res.rows;
+  ctx.body = '<h1>Bienvenido a MemoryMatrix</h1>';
 });
 
 module.exports = router;

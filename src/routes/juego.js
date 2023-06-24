@@ -39,18 +39,16 @@ async function asyncFor(lista, out) {
 // =====================================================
 
 router.get('/probando', async (ctx) => {
-  const p = await knex('partida').max('id');
-  const t = await knex('tablero').max('id');
-  const dic = {
-    max_p: p[0].max,
-    max_t: t[0].max,
-  };
-  (async () => {
-    console.log(dic);
-  })();
-  // .catch((error) => {
-  //   console.log('Error:', error);
-  // };
+  await knex('usuario')
+    .where('password', 1111)
+    .whereIn('id', [1, 5])
+    .where('id', 1)
+    .then((ret) => {
+      console.log(ret);
+    })
+    .catch((error) => {
+      console.log('Error:', error);
+    });
   ctx.body = '<h1>Ok</h1>';
   ctx.status = 201;
 });
@@ -202,8 +200,8 @@ router.get('/FreeTrial', async (ctx) => {
   //   )
   await knex.select('*')
     .from('bonus')
-    .then(async (bonus) => {
-      // const bonus = resQuery;
+    .then(async (resQuery) => {
+      const bonus = resQuery[0];
       response.tablero.bonus = [
         {
           id: bonus[0].id,
@@ -240,18 +238,18 @@ router.get('/FreeTrial', async (ctx) => {
       );
     });
   // Buscar imagenes para el tablero
-  await knex.raw(
-    `SELECT * FROM Imagen 
-    WHERE dificultad = '${response.partida.dificultad}' 
-    LIMIT ${response.tablero.tamano ** 2 / 2}`,
-  );
+  // await knex.raw(
+  //   `SELECT * FROM Imagen 
+  //   WHERE dificultad = '${response.partida.dificultad}' 
+  //   LIMIT ${response.tablero.tamano ** 2 / 2}`,
+  // )
   await knex
     .select('*')
     .from('imagen')
     .where({ dificultad: response.partida.dificultad })
     .limit(response.tablero.tamano ** 2 / 2)
-    .then(async (imagenes) => {
-      // const imagenes = resQuery.rows;
+    .then(async (resQuery) => {
+      const imagenes = resQuery[0];
       // Crear nueva relacion Tablero_Imagenes
       const imagenesDuplicadas = imagenes.concat(imagenes); // Para un tablero que tenga todas las
       //                                       imagenes diferenctes no se debe duplicar las listas
@@ -281,8 +279,8 @@ router.get('/FreeTrial', async (ctx) => {
         .where({
           'TI.id_tablero': response.tablero.id,
         })
-        .then(async (tableroImagen) => {
-          // const tableroImagen = resQuery.rows;
+        .then(async (resQuery) => {
+          const tableroImagen = resQuery[0];
           // Para un tablero que tenga todas las imagenes diferenctes no se debe duplicar las listas
           const tableroImagenDuplicado = tableroImagen.concat(tableroImagen);
           await asyncFor([imagenesDuplicadas, tableroImagenDuplicado], response.tablero.imagenes);
@@ -331,9 +329,9 @@ router.get('/:nickname', async (ctx) => {
   // )
   const nivel = await knex.select('U.id, U.nickname, T.tamano, T.dificultad')
     .from('usuario AS U')
-    .where([{
+    .where({
       'U.nickname': reqBody.nickname,
-    }])
+    })
     .join('historial AS H', 'H.id_usuario', 'U.id')
     .join('partida AS P', 'P.id', 'H.id_partida')
     .join('tablero_partida AS TP', 'TP.id_partida', 'P.id')
@@ -353,9 +351,9 @@ router.get('/:nickname', async (ctx) => {
   // )
   const imagenes = await knex('imagen')
     .select('*')
-    .where([{
+    .where({
       dificultad: nivel[0].dificultad,
-    }])
+    })
     .limit(nivel[0].tamano);
 
   // Codificar imagenes
@@ -378,28 +376,50 @@ router.get('/:nickname', async (ctx) => {
     .then(async () => {
       // Creacion de Historial
       const date = new Date();
-      await knex.raw(
-        `INSERT INTO Historial (id_usuario, id_partida, fecha)
-        VALUES (${nivel.rows[0].id}, ${response.partida.id}, '${date.toISOString().replace('T', ' ').replace('Z', '')}')`,
-      );
+      // await knex.raw(
+      //   `INSERT INTO Historial (id_usuario, id_partida, fecha)
+      //   VALUES (${nivel.rows[0].id}, ${response.partida.id},
+      //     '${date.toISOString().replace('T', ' ').replace('Z', '')}')`,
+      // );
+      await knex
+        .insert([{
+          id_usuario: nivel[0].id,
+          id_partida: response.partida.id,
+          fecha: date.toISOString().replace('T', ' ').replace('Z', ''),
+        }])
+        .into('historial');
     });
 
   // Creacion del tablero
-  await knex.raw(
-    'SELECT max(id) FROM Tablero',
-  ).then(async (maxIdTablero) => {
-    await knex.raw(
-      `INSERT INTO Tablero (tamano, dificultad) 
-      VALUES (${nivel.rows[0].tamano}, '${nivel.rows[0].dificultad}')`,
-    );
-    // Relacionar Tablero con Partida
-    const newIdPartida = maxIdPartida[0].max + 1;
-    const newIdTablero = maxIdTablero[0].max + 1;
-    await knex.raw(
-      `INSERT INTO Tablero_Partida (id_partida, id_tablero) 
-      VALUES (${newIdPartida}, ${newIdTablero})`,
-    );
-  });
+  // await knex.raw(
+  //   'SELECT max(id) FROM Tablero',
+  //   )
+  await knex('tablero').max('id')
+    .then(async (maxIdTablero) => {
+      // await knex.raw(
+      //   `INSERT INTO Tablero (tamano, dificultad)
+      //   VALUES (${nivel.rows[0].tamano}, '${nivel.rows[0].dificultad}')`,
+      // );
+      await knex
+        .insert([{
+          tamano: nivel[0].tamano,
+          dificultad: nivel[0].dificultad,
+        }])
+        .into('tablero');
+      // Relacionar Tablero con Partida
+      const newIdPartida = maxIdPartida[0].max + 1;
+      const newIdTablero = maxIdTablero[0].max + 1;
+      // await knex.raw(
+      //   `INSERT INTO Tablero_Partida (id_partida, id_tablero)
+      //   VALUES (${newIdPartida}, ${newIdTablero})`,
+      // );
+      await knex
+        .insert([{
+          id_partida: newIdPartida,
+          id_tablero: newIdTablero,
+        }])
+        .into('tablero_partida');
+    });
 
   ctx.body = response;
 });
@@ -478,40 +498,57 @@ router.post('/Delete', async (ctx) => {
     comentario: [],
   };
 
-  await knex.raw(
-    `SELECT * FROM Historial H
-    WHERE H.id_usuario = ${reqBody.usuario.id}
-    AND H.id_partida = ${reqBody.partida.id}`,
-  ).then(async (reqQuery) => {
-    const historial = reqQuery.rows[0];
-    if (historial) {
-      // Tablero
-      await knex.raw(
-        `DELETE FROM Tablero
-        WHERE id = (
-          SELECT id_tablero FROM Tablero_Partida
-          WHERE id_partida = ${historial.id_partida}
-          )`,
-      );
-      // Usuario
-      await knex.raw(
-        `DELETE FROM Usuario
-        WHERE id = ${historial.id_usuario}`,
-      );
-      // Partida
-      await knex.raw(
-        `DELETE FROM Partida
-        WHERE id = ${historial.id_partida}`,
-      );
-      // Historial
-      // Tablero_Partida
-      // Tablero_Imagenes
-      // Partida_Bonus
-      response.comentario.push('Partida Borrada exitosamente');
-    } else {
-      response.comentario.push('Error al borrar la partida, No existe relación entre usuario y partida');
-    }
-  });
+  // await knex.raw(
+  //   `SELECT * FROM Historial H
+  //   WHERE H.id_usuario = ${reqBody.usuario.id}
+  //   AND H.id_partida = ${reqBody.partida.id}`,
+  //   )
+  await knex.select('*')
+    .from('historail AS H')
+    .where({
+      'H.id_usuario': reqBody.usuario.id,
+      'H.id_partida': reqBody.partida.id,
+    })
+    .then(async (reqQuery) => {
+      const historial = reqQuery[0];
+      if (historial) {
+        // Tablero
+        // await knex.raw(
+        //   `DELETE FROM Tablero
+        //   WHERE id = (
+        //     SELECT id_tablero FROM Tablero_Partida
+        //     WHERE id_partida = ${historial.id_partida}
+        //     )`,
+        // );
+        const tableroPartida = await knex('tablero_partida').select('id_tablero').where([{
+          id_partida: historial.id_partida,
+        }]);
+        await knex('tablero')
+          .where({
+            id: tableroPartida[0].id_tablero,
+          })
+          .del();
+        // Usuario
+        // await knex.raw(
+        //   `DELETE FROM Usuario
+        //   WHERE id = ${historial.id_usuario}`,
+        // );
+        await knex('usuario').where('id', historial.id_usuario).del();
+        // Partida
+        // await knex.raw(
+        //   `DELETE FROM Partida
+        //   WHERE id = ${historial.id_partida}`,
+        // );
+        await knex('partida').where('id', historial.id_partida).del();
+        // Historial
+        // Tablero_Partida
+        // Tablero_Imagenes
+        // Partida_Bonus
+        response.comentario.push('Partida Borrada exitosamente');
+      } else {
+        response.comentario.push('Error al borrar la partida, No existe relación entre usuario y partida');
+      }
+    });
 
   ctx.body = response;
   ctx.status = 200;
