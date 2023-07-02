@@ -27,7 +27,7 @@ async function asyncFor(lista, out) {
     const img64 = await data64(imgPath);
     out[index] = {
       id: imagen.id,
-      imagen: img64.slice(0, 30), // Posteriormente quitar el slice
+      imagen: img64, // .slice(0, 30), Posteriormente quitar el slice
       posicion: tableroImagen[index].posicion,
       visible: tableroImagen[index].visible,
       enlazada: tableroImagen[index].enlazada,
