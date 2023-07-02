@@ -1,5 +1,5 @@
 const Router = require('koa-router');
-const knex = require('../controllers/knex');
+// const knex = require('../controllers/knex');
 
 const router = new Router();
 

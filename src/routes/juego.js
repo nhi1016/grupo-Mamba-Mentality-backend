@@ -80,7 +80,7 @@ router.get('/FreeTrial', async (ctx) => {
 
   // Consulta usuario default
   // const usuarioDefault = await knex.raw('SELECT nickname, password FROM Usuario WHERE id = 1');
-  const usuarioDefault = await knex.select('nickname, password').from('usuario').where('id', '1');
+  const usuarioDefault = await knex.select('nickname', 'password').from('usuario').where('id', '1');
   // Crear usuario default
   // await knex.raw(
   //   'SELECT MAX(id) FROM Usuario',
@@ -88,7 +88,7 @@ router.get('/FreeTrial', async (ctx) => {
   await knex('usuario').max('id as max_id')
     .then(async (maxIdUsuario) => {
       const newId = maxIdUsuario[0].max_id + 1;
-      const newNickname = usuarioDefault[0].nickname;
+      const newNickname = `${usuarioDefault[0].nickname}_${newId}`;
       const newPass = usuarioDefault[0].password;
       response.usuario.id = newId;
       response.usuario.nickname = newNickname;
@@ -111,7 +111,7 @@ router.get('/FreeTrial', async (ctx) => {
   //   WHERE P.id = 1
   //   AND T.id = 1`,
   // )
-  await knex.select('P.score, P.vidas, P.tiempo_restante, P.titulo, T.tamano, T.dificultad')
+  await knex.select('P.score', 'P.vidas', 'P.tiempo_restante', 'P.titulo', 'T.tamano', 'T.dificultad')
     .from('partida as P')
     .where({ 'P.id': 1 })
     .join('tablero as T', 'P.id', 1)
@@ -119,13 +119,13 @@ router.get('/FreeTrial', async (ctx) => {
       const newScore = partidaDefault[0].score;
       const newVidas = partidaDefault[0].vidas;
       const newTiempo = partidaDefault[0].tiempo_restante;
-      const newTitulo = partidaDefault[0].titulo;
+      const newTitulo = `${partidaDefault[0].titulo}_${response.usuario.id}`;
       const newTamano = partidaDefault[0].tamano;
       const newDificultad = partidaDefault[0].dificultad;
       response.partida.score = newScore;
       response.partida.vidas = newVidas;
       response.partida.tiempo_restante = newTiempo;
-      response.partida.titulo = `${newTitulo} ${response.usuario.id}`;
+      response.partida.titulo = newTitulo;
       response.tablero.tamano = newTamano;
       response.partida.dificultad = newDificultad;
       // Crear nueva partida default
@@ -155,7 +155,7 @@ router.get('/FreeTrial', async (ctx) => {
             tiempo_restante: newTiempo,
             titulo: newTitulo,
           }])
-          .into('partidas');
+          .into('partida');
         // Crear Tablero Default
         // await knex.raw(
         //   `INSERT INTO Tablero (tamano, dificultad)
@@ -200,8 +200,7 @@ router.get('/FreeTrial', async (ctx) => {
   //   )
   await knex.select('*')
     .from('bonus')
-    .then(async (resQuery) => {
-      const bonus = resQuery[0];
+    .then(async (bonus) => {
       response.tablero.bonus = [
         {
           id: bonus[0].id,
@@ -239,8 +238,8 @@ router.get('/FreeTrial', async (ctx) => {
     });
   // Buscar imagenes para el tablero
   // await knex.raw(
-  //   `SELECT * FROM Imagen 
-  //   WHERE dificultad = '${response.partida.dificultad}' 
+  //   `SELECT * FROM Imagen
+  //   WHERE dificultad = '${response.partida.dificultad}'
   //   LIMIT ${response.tablero.tamano ** 2 / 2}`,
   // )
   await knex
@@ -248,8 +247,7 @@ router.get('/FreeTrial', async (ctx) => {
     .from('imagen')
     .where({ dificultad: response.partida.dificultad })
     .limit(response.tablero.tamano ** 2 / 2)
-    .then(async (resQuery) => {
-      const imagenes = resQuery[0];
+    .then(async (imagenes) => {
       // Crear nueva relacion Tablero_Imagenes
       const imagenesDuplicadas = imagenes.concat(imagenes); // Para un tablero que tenga todas las
       //                                       imagenes diferenctes no se debe duplicar las listas
@@ -279,8 +277,7 @@ router.get('/FreeTrial', async (ctx) => {
         .where({
           'TI.id_tablero': response.tablero.id,
         })
-        .then(async (resQuery) => {
-          const tableroImagen = resQuery[0];
+        .then(async (tableroImagen) => {
           // Para un tablero que tenga todas las imagenes diferenctes no se debe duplicar las listas
           const tableroImagenDuplicado = tableroImagen.concat(tableroImagen);
           await asyncFor([imagenesDuplicadas, tableroImagenDuplicado], response.tablero.imagenes);
@@ -504,7 +501,7 @@ router.post('/Delete', async (ctx) => {
   //   AND H.id_partida = ${reqBody.partida.id}`,
   //   )
   await knex.select('*')
-    .from('historail AS H')
+    .from('historial AS H')
     .where({
       'H.id_usuario': reqBody.usuario.id,
       'H.id_partida': reqBody.partida.id,
@@ -520,9 +517,11 @@ router.post('/Delete', async (ctx) => {
         //     WHERE id_partida = ${historial.id_partida}
         //     )`,
         // );
-        const tableroPartida = await knex('tablero_partida').select('id_tablero').where([{
-          id_partida: historial.id_partida,
-        }]);
+        const tableroPartida = await knex('tablero_partida AS TP')
+          // .select('TP.id_tablero')
+          .where({
+            'TP.id_partida': historial.id_partida,
+          });
         await knex('tablero')
           .where({
             id: tableroPartida[0].id_tablero,
@@ -548,6 +547,10 @@ router.post('/Delete', async (ctx) => {
       } else {
         response.comentario.push('Error al borrar la partida, No existe relación entre usuario y partida');
       }
+    })
+    .catch((err) => {
+      response.comentario.push('Error en el body');
+      console.log(err);
     });
 
   ctx.body = response;
