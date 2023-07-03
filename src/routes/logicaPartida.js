@@ -163,6 +163,10 @@ router.post('/checkimages', async (ctx) => {
       response.comentario.push('Error en los datos');
       console.log(err);
     });
+
+  console.log(reqBody)
+  console.log(response)
+  
   ctx.body = response;
   ctx.status = 200;
 });
