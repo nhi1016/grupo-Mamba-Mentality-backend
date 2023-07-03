@@ -132,67 +132,74 @@ router.get('/FreeTrial', async (ctx) => {
       // await knex.raw(
       //   'SELECT MAX(P.id) AS P_max, MAX(T.id) AS T_max FROM Partida P, Tablero T',
       //   )
-      const partida = await knex('partida').max('id');
-      const tablero = await knex('tablero').max('id');
-      const maxId = {
-        p_max: partida[0].max,
-        t_max: tablero[0].max,
-      };
-      (async () => {
-        const newIdPartida = maxId.p_max + 1;
-        const newIdTablero = maxId.t_max + 1;
-        response.partida.id = newIdPartida;
-        response.tablero.id = newIdTablero;
-        // await knex.raw(
-        //   `INSERT INTO Partida (id, score, vidas, tiempo_restante, titulo)
-        //   VALUES (${newIdPartida}, ${newScore}, ${newVidas}, ${newTiempo}, '${newTitulo}')`,
-        // )
-        await knex
-          .insert([{
-            id: newIdPartida,
-            score: newScore,
-            vidas: newVidas,
-            tiempo_restante: newTiempo,
-            titulo: newTitulo,
-          }])
-          .into('partida');
-        // Crear Tablero Default
-        // await knex.raw(
-        //   `INSERT INTO Tablero (tamano, dificultad)
-        //   VALUES (${newTamano}, '${newDificultad}')`,
-        // );
-        await knex
-          .insert([{
-            tamano: newTamano,
-            dificultad: newDificultad,
-          }])
-          .into('tablero');
-        // Crear relacion Tablero_Partida
-        // await knex.raw(
-        //   `INSERT INTO Tablero_Partida (id_partida, id_tablero)
-        //   VALUES (${newIdPartida}, ${newIdTablero})`,
-        // );
-        await knex
-          .insert([{
-            id_partida: newIdPartida,
-            id_tablero: newIdTablero,
-          }])
-          .into('tablero_partida');
-        // Crear relacion Histrial
-        const date = new Date();
-        const newFecha = date.toISOString().replace('T', ' ').replace('Z', '');
-        // await knex.raw(
-        //   `INSERT INTO Historial (id_usuario, id_partida, fecha)
-        //   VALUES (${response.usuario.id}, ${newIdPartida}, '${newFecha}')`,
-        // );
-        await knex
-          .insert([{
-            id_usuario: response.usuario.id,
-            id_partida: newIdPartida,
-            fecha: newFecha,
-          }])
-          .into('historial');
-      })();
+      await knex('partida').max('id')
+        .then(async (partida) => {
+          const tablero = await knex('tablero').max('id');
+          const maxId = {
+            p_max: partida[0].max,
+            t_max: tablero[0].max,
+          };
+          return maxId;
+        })
+        .then(async (maxId) => {
+          const newIdPartida = maxId.p_max + 1;
+          const newIdTablero = maxId.t_max + 1;
+          response.partida.id = newIdPartida;
+          response.tablero.id = newIdTablero;
+          // await knex.raw(
+          //   `INSERT INTO Partida (id, score, vidas, tiempo_restante, titulo)
+          //   VALUES (${newIdPartida}, ${newScore}, ${newVidas}, ${newTiempo}, '${newTitulo}')`,
+          // )
+          await knex
+            .insert([{
+              id: newIdPartida,
+              score: newScore,
+              vidas: newVidas,
+              tiempo_restante: newTiempo,
+              titulo: newTitulo,
+            }])
+            .into('partida');
+          // Crear Tablero Default
+          // await knex.raw(
+          //   `INSERT INTO Tablero (tamano, dificultad)
+          //   VALUES (${newTamano}, '${newDificultad}')`,
+          // );
+          await knex
+            .insert([{
+              tamano: newTamano,
+              dificultad: newDificultad,
+            }])
+            .into('tablero');
+          // Crear relacion Tablero_Partida
+          // await knex.raw(
+          //   `INSERT INTO Tablero_Partida (id_partida, id_tablero)
+          //   VALUES (${newIdPartida}, ${newIdTablero})`,
+          // );
+          await knex
+            .insert([{
+              id_partida: newIdPartida,
+              id_tablero: newIdTablero,
+            }])
+            .into('tablero_partida');
+          // Crear relacion Histrial
+          const date = new Date();
+          const newFecha = date.toISOString().replace('T', ' ').replace('Z', '');
+          // await knex.raw(
+          //   `INSERT INTO Historial (id_usuario, id_partida, fecha)
+          //   VALUES (${response.usuario.id}, ${newIdPartida}, '${newFecha}')`,
+          // );
+          await knex
+            .insert([{
+              id_usuario: response.usuario.id,
+              id_partida: newIdPartida,
+              fecha: newFecha,
+            }])
+            .into('historial');
+        });
+    })
+    .catch((err) => {
+      console.log(err);
+      response.estado = 'Error';
     });
   // Anadir Bonus a la partida y a la relacion Partida_Bonus
   // await knex.raw(
@@ -282,6 +289,10 @@ router.get('/FreeTrial', async (ctx) => {
           const tableroImagenDuplicado = tableroImagen.concat(tableroImagen);
           await asyncFor([imagenesDuplicadas, tableroImagenDuplicado], response.tablero.imagenes);
         });
+    })
+    .catch((err) => {
+      console.log(err);
+      response.estado = 'Error';
     });
 
   ctx.body = response;
